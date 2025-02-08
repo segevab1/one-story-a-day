@@ -9,33 +9,67 @@ const Index = () => {
   const [candlesLit, setCandlesLit] = useState(0);
   const { toast } = useToast();
   
-  // Example story data
-  const story = {
-    id: "1",
-    name: "סגן דוד כהן",
-    age: 23,
-    date: "7.10.2023",
-    unit: "חטיבת גולני",
-    story: "דוד היה מפקד מצטיין, אהוב על חייליו ומסור למשפחתו. הוא נפל בקרב בעת הגנה על יישובי עוטף עזה.",
-    image: "https://images.unsplash.com/photo-1501854140801-50d01698950b",
-    candlesLit: 342
-  };
+  // Expanded stories data with more detailed narratives
+  const stories = [
+    {
+      id: "1",
+      name: "סגן דוד כהן",
+      age: 23,
+      date: "7.10.2023",
+      unit: "חטיבת גולני",
+      story: `דוד היה בן יחיד להוריו רחל ומשה מחיפה. מילדותו בלט בכישוריו המנהיגותיים ואהבתו הגדולה לארץ ישראל. בתיכון היה יושב ראש מועצת התלמידים והתנדב במד"א. התגייס לגולני מתוך בחירה ועבר קורס קצינים בהצטיינות.
+
+דוד נפל בקרב ב-7 באוקטובר, כשפיקד על כוח שנשלח לחלץ משפחות ביישובי עוטף עזה. למרות פציעתו, המשיך לפקד על חייליו ולסייע בחילוץ אזרחים עד שנפל. על גבורתו בקרב הוענק לו צל"ש לאחר מותו.`,
+      image: "/soldiers/soldier1.jpg",
+      candlesLit: 342
+    },
+    {
+      id: "2",
+      name: "סמ״ר יובל רוזן",
+      age: 21,
+      date: "8.10.2023",
+      unit: "סיירת מטכ״ל",
+      story: `יובל גדל בתל אביב, בן בכור למשפחת רוזן. מגיל צעיר התעניין בספורט ובמוזיקה, ניגן בגיטרה והיה חבר בלהקת בית הספר. התנדב לסיירת מטכ"ל והצטיין באימונים.
+
+בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הוא חיפה על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
+      image: "/soldiers/soldier2.jpg",
+      candlesLit: 256
+    },
+    {
+      id: "3",
+      name: "סמ״ר שירה לוי",
+      age: 20,
+      date: "7.10.2023",
+      unit: "8200",
+      story: `שירה, תושבת ירושלים, הייתה מצטיינת בלימודי המחשב והמתמטיקה. התנדבה לשרת ביחידה 8200 והייתה חלק מצוות פיתוח מערכות הגנה סייבר.
+
+בשבת ה-7 באוקטובר, למרות שהייתה בחופשה, התעקשה לחזור לבסיס כששמעה על המתקפה. בדרכה לבסיס, נתקלה בירי טילים. עצרה לסייע למשפחה שנפגעה בצד הדרך, ונהרגה מפגיעת רקטה בעת שחבשה פצועים.`,
+      image: "/soldiers/soldier3.jpg",
+      candlesLit: 189
+    }
+  ];
+
+  // Choose a random story on component mount
+  const [currentStory] = useState(() => {
+    const randomIndex = Math.floor(Math.random() * stories.length);
+    return stories[randomIndex];
+  });
 
   const handleLightCandle = () => {
     setCandlesLit(prev => prev + 1);
     toast({
       title: "נר הודלק לזכרו",
-      description: `הדלקת נר לזכרו של ${story.name}`,
+      description: `הדלקת נר לזכרו של ${currentStory.name}`,
     });
   };
 
   const handleShare = async () => {
-    const shareText = `היום הנצחתי את ${story.name} באתר 'סיפור אחד ביום', כנסו לקרוא ולהדליק נר לזכרו`;
+    const shareText = `היום הנצחתי את ${currentStory.name} באתר 'סיפור אחד ביום', כנסו לקרוא ולהדליק נר לזכרו`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `לזכרו של ${story.name}`,
+          title: `לזכרו של ${currentStory.name}`,
           text: shareText,
           url: window.location.href,
         });
@@ -43,7 +77,6 @@ const Index = () => {
         console.error("Error sharing:", error);
       }
     } else {
-      // Fallback - copy to clipboard
       navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
       toast({
         title: "הטקסט הועתק",
@@ -63,24 +96,24 @@ const Index = () => {
         <Card className="memorial-card overflow-hidden animate-slide-up">
           <div className="relative aspect-video">
             <img 
-              src={story.image} 
-              alt={story.name}
+              src={currentStory.image} 
+              alt={currentStory.name}
               className="object-cover w-full h-full brightness-75"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
           </div>
           
           <CardHeader className="space-y-2">
-            <h2 className="text-3xl font-bold text-gradient-gold">{story.name}</h2>
+            <h2 className="text-3xl font-bold text-gradient-gold">{currentStory.name}</h2>
             <p className="text-muted-foreground">
-              {story.age} | {story.unit} | {story.date}
+              {currentStory.age} | {currentStory.unit} | {currentStory.date}
             </p>
           </CardHeader>
 
           <CardContent className="space-y-8">
-            <p className="text-lg leading-relaxed">
-              {story.story}
-            </p>
+            <div className="text-lg leading-relaxed whitespace-pre-line">
+              {currentStory.story}
+            </div>
 
             <div className="flex flex-wrap justify-between items-center gap-4">
               <Button
