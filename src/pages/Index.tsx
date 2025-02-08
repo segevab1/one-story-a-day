@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Flame, Share2, Facebook, Instagram, MessageCircle } from "lucide-react";
+import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -15,7 +15,7 @@ const Index = () => {
   const [candlesLit, setCandlesLit] = useState(0);
   const { toast } = useToast();
   
-  // Expanded stories data with more detailed narratives
+  // Expanded stories data with more detailed narratives and contact information
   const stories = [
     {
       id: "1",
@@ -27,7 +27,11 @@ const Index = () => {
 
 דוד נפל בקרב ב-7 באוקטובר, כשפיקד על כוח שנשלח לחלץ משפחות ביישובי עוטף עזה. למרות פציעתו, המשיך לפקד על חייליו ולסייע בחילוץ אזרחים עד שנפל. על גבורתו בקרב הוענק לו צל"ש לאחר מותו.`,
       image: "/soldiers/soldier1.jpg",
-      candlesLit: 342
+      candlesLit: 342,
+      contact: {
+        email: "cohen.family@example.com",
+        phone: "054-1234567"
+      }
     },
     {
       id: "2",
@@ -39,7 +43,11 @@ const Index = () => {
 
 בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הוא חיפה על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
       image: "/soldiers/soldier2.jpg",
-      candlesLit: 256
+      candlesLit: 256,
+      contact: {
+        email: "rozen.memory@example.com",
+        phone: "054-7654321"
+      }
     },
     {
       id: "3",
@@ -51,15 +59,40 @@ const Index = () => {
 
 בשבת ה-7 באוקטובר, למרות שהייתה בחופשה, התעקשה לחזור לבסיס כששמעה על המתקפה. בדרכה לבסיס, נתקלה בירי טילים. עצרה לסייע למשפחה שנפגעה בצד הדרך, ונהרגה מפגיעת רקטה בעת שחבשה פצועים.`,
       image: "/soldiers/soldier3.jpg",
-      candlesLit: 189
+      candlesLit: 189,
+      contact: {
+        email: "levi.memorial@example.com",
+        phone: "054-9876543"
+      }
+    },
+    {
+      id: "4",
+      name: "רב״ט אדם ברק",
+      age: 19,
+      date: "7.10.2023",
+      unit: "חטיבת הנח״ל",
+      story: `אדם היה ספורטאי מחונן ושחקן נבחרת הנוער בכדורסל. למרות שיכול היה לקבל פטור ספורטאי מצטיין, התעקש להתגייס לקרבי. שירת בגדוד 50 של הנח"ל והיה מצטיין מחלקתי.
+
+בבוקר השבת השחורה, היה בין הראשונים שהגיעו לקיבוץ בארי. נלחם בגבורה מול מחבלים שחדרו לקיבוץ, חילץ משפחה שלמה ממרחב מוגן, אך נפגע בחילופי האש האחרונים.`,
+      image: "/soldiers/soldier4.jpg",
+      candlesLit: 167,
+      contact: {
+        email: "barak.family@example.com",
+        phone: "054-3216549"
+      }
     }
   ];
 
-  // Choose a random story on component mount
-  const [currentStory] = useState(() => {
-    const randomIndex = Math.floor(Math.random() * stories.length);
-    return stories[randomIndex];
-  });
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const currentStory = stories[currentStoryIndex];
+
+  const handleNextStory = () => {
+    setCurrentStoryIndex((prev) => (prev + 1) % stories.length);
+  };
+
+  const handlePrevStory = () => {
+    setCurrentStoryIndex((prev) => (prev - 1 + stories.length) % stories.length);
+  };
 
   const handleLightCandle = () => {
     setCandlesLit(prev => prev + 1);
@@ -101,69 +134,110 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background font-assistant p-4">
       <div className="container mx-auto max-w-4xl">
-        <header className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl font-bold text-gradient-gold mb-2">סיפור אחד ביום</h1>
-          <p className="text-muted-foreground">לזכר חללי צה״ל במלחמת חרבות ברזל</p>
+        <header className="text-center mb-12 animate-fade-in flex justify-between items-center">
+          <Button variant="outline" onClick={() => toast({ title: "יתווסף בקרוב", description: "האפשרות להוספת סיפור תתאפשר לאחר התחברות" })}>
+            הוספת סיפור
+          </Button>
+          <div>
+            <h1 className="text-4xl font-bold text-gradient-gold mb-2">סיפור אחד ביום</h1>
+            <p className="text-muted-foreground">לזכר חללי צה״ל במלחמת חרבות ברזל</p>
+          </div>
+          <Button variant="outline" onClick={() => toast({ title: "יתווסף בקרוב", description: "אפשרות ההרשמה תתאפשר בקרוב" })}>
+            <UserPlus className="ml-2" />
+            הרשמה
+          </Button>
         </header>
 
-        <Card className="memorial-card overflow-hidden animate-slide-up">
-          <div className="relative aspect-video">
-            <img 
-              src={currentStory.image} 
-              alt={currentStory.name}
-              className="object-cover w-full h-full brightness-75"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-          </div>
-          
-          <CardHeader className="space-y-2">
-            <h2 className="text-3xl font-bold text-gradient-gold">{currentStory.name}</h2>
-            <p className="text-muted-foreground">
-              {currentStory.age} | {currentStory.unit} | {currentStory.date}
-            </p>
-          </CardHeader>
+        <div className="relative">
+          <Button
+            variant="ghost"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10"
+            onClick={handlePrevStory}
+          >
+            <ChevronLeft className="h-8 w-8" />
+          </Button>
 
-          <CardContent className="space-y-8">
-            <div className="text-lg leading-relaxed whitespace-pre-line">
-              {currentStory.story}
+          <Card className="memorial-card overflow-hidden animate-slide-up mx-12">
+            <div className="relative aspect-video">
+              <img 
+                src={currentStory.image} 
+                alt={currentStory.name}
+                className="object-cover w-full h-full brightness-75"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
             </div>
+            
+            <CardHeader className="space-y-2">
+              <h2 className="text-3xl font-bold text-gradient-gold">{currentStory.name}</h2>
+              <p className="text-muted-foreground">
+                {currentStory.age} | {currentStory.unit} | {currentStory.date}
+              </p>
+            </CardHeader>
 
-            <div className="flex flex-wrap justify-between items-center gap-4">
-              <Button
-                onClick={handleLightCandle}
-                className="candle-animation hover:scale-105"
-                variant="outline"
-              >
-                <Flame className={`mr-2 ${candlesLit > 0 ? "candle-lit" : ""}`} />
-                <span>הדלקת נר</span>
-                <span className="mr-2 text-muted-foreground">| {candlesLit}</span>
-              </Button>
+            <CardContent className="space-y-8">
+              <div className="text-lg leading-relaxed whitespace-pre-line">
+                {currentStory.story}
+              </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hover:text-primary transition-colors">
-                    <Share2 className="mr-2" />
-                    <span>שיתוף</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => handleShare('facebook')} className="cursor-pointer">
-                    <Facebook className="ml-2" size={18} />
-                    <span>פייסבוק</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleShare('instagram')} className="cursor-pointer">
-                    <Instagram className="ml-2" size={18} />
-                    <span>אינסטגרם</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleShare('whatsapp')} className="cursor-pointer">
-                    <MessageCircle className="ml-2" size={18} />
-                    <span>וואטסאפ</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="border-t border-border pt-4">
+                <h3 className="text-lg font-semibold mb-2 text-gradient-gold">יצירת קשר עם המשפחה</h3>
+                <div className="space-y-2 text-muted-foreground">
+                  <p className="flex items-center">
+                    <Mail className="ml-2" size={18} />
+                    <span>{currentStory.contact.email}</span>
+                  </p>
+                  <p className="flex items-center">
+                    <Phone className="ml-2" size={18} />
+                    <span>{currentStory.contact.phone}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap justify-between items-center gap-4">
+                <Button
+                  onClick={handleLightCandle}
+                  className="candle-animation hover:scale-105"
+                  variant="outline"
+                >
+                  <Flame className={`mr-2 ${candlesLit > 0 ? "candle-lit" : ""}`} />
+                  <span>הדלקת נר</span>
+                  <span className="mr-2 text-muted-foreground">| {candlesLit}</span>
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="hover:text-primary transition-colors">
+                      <Share2 className="mr-2" />
+                      <span>שיתוף</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => handleShare('facebook')} className="cursor-pointer">
+                      <Facebook className="ml-2" size={18} />
+                      <span>פייסבוק</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleShare('instagram')} className="cursor-pointer">
+                      <Instagram className="ml-2" size={18} />
+                      <span>אינסטגרם</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleShare('whatsapp')} className="cursor-pointer">
+                      <MessageCircle className="ml-2" size={18} />
+                      <span>וואטסאפ</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Button
+            variant="ghost"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10"
+            onClick={handleNextStory}
+          >
+            <ChevronRight className="h-8 w-8" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -8,4 +8,8 @@ export interface Story {
   story: string;
   image: string;
   candlesLit: number;
+  contact: {
+    email: string;
+    phone: string;
+  };
 }
