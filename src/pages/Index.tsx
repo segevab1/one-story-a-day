@@ -1,9 +1,13 @@
 
 import { useState } from "react";
 import { Flame, Share2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const Index = () => {
   const [candlesLit, setCandlesLit] = useState(0);
+  const { toast } = useToast();
   
   // Example story data
   const story = {
@@ -13,72 +17,93 @@ const Index = () => {
     date: "7.10.2023",
     unit: "חטיבת גולני",
     story: "דוד היה מפקד מצטיין, אהוב על חייליו ומסור למשפחתו. הוא נפל בקרב בעת הגנה על יישובי עוטף עזה.",
-    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+    image: "https://images.unsplash.com/photo-1501854140801-50d01698950b",
     candlesLit: 342
   };
 
   const handleLightCandle = () => {
     setCandlesLit(prev => prev + 1);
+    toast({
+      title: "נר הודלק לזכרו",
+      description: `הדלקת נר לזכרו של ${story.name}`,
+    });
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
+    const shareText = `היום הנצחתי את ${story.name} באתר 'סיפור אחד ביום', כנסו לקרוא ולהדליק נר לזכרו`;
+    
     if (navigator.share) {
-      navigator.share({
-        title: `לזכרו של ${story.name}`,
-        text: `קראו את סיפורו של ${story.name}, שנפל במלחמת חרבות ברזל`,
-        url: window.location.href,
+      try {
+        await navigator.share({
+          title: `לזכרו של ${story.name}`,
+          text: shareText,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.error("Error sharing:", error);
+      }
+    } else {
+      // Fallback - copy to clipboard
+      navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
+      toast({
+        title: "הטקסט הועתק",
+        description: "הטקסט הועתק ללוח. תוכל להדביק אותו בכל מקום.",
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-memorial-background font-assistant">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background font-assistant p-4">
+      <div className="container mx-auto max-w-4xl">
         <header className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl font-bold text-memorial-text mb-2">סיפור אחד ביום</h1>
-          <p className="text-memorial-accent">לזכר חללי צה״ל במלחמת חרבות ברזל</p>
+          <h1 className="text-4xl font-bold text-gradient-gold mb-2">סיפור אחד ביום</h1>
+          <p className="text-muted-foreground">לזכר חללי צה״ל במלחמת חרבות ברזל</p>
         </header>
 
-        <main className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden animate-slide-up">
-          <div className="aspect-w-16 aspect-h-9">
+        <Card className="memorial-card overflow-hidden animate-slide-up">
+          <div className="relative aspect-video">
             <img 
               src={story.image} 
               alt={story.name}
-              className="object-cover w-full h-64"
+              className="object-cover w-full h-full brightness-75"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
           </div>
           
-          <div className="p-8">
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold text-memorial-text mb-2">{story.name}</h2>
-              <p className="text-memorial-accent">
-                {story.age} | {story.unit} | {story.date}
-              </p>
-            </div>
+          <CardHeader className="space-y-2">
+            <h2 className="text-3xl font-bold text-gradient-gold">{story.name}</h2>
+            <p className="text-muted-foreground">
+              {story.age} | {story.unit} | {story.date}
+            </p>
+          </CardHeader>
 
-            <p className="text-memorial-text text-lg leading-relaxed mb-8">
+          <CardContent className="space-y-8">
+            <p className="text-lg leading-relaxed">
               {story.story}
             </p>
 
-            <div className="flex justify-between items-center">
-              <button
+            <div className="flex flex-wrap justify-between items-center gap-4">
+              <Button
                 onClick={handleLightCandle}
-                className="flex items-center gap-2 px-6 py-3 bg-memorial-light text-memorial-dark rounded-full hover:bg-memorial-dark hover:text-white transition-colors duration-300"
+                className="candle-animation hover:scale-105"
+                variant="outline"
               >
-                <Flame className="w-5 h-5" />
-                <span>הדלקת נר | {candlesLit}</span>
-              </button>
+                <Flame className={`mr-2 ${candlesLit > 0 ? "candle-lit" : ""}`} />
+                <span>הדלקת נר</span>
+                <span className="mr-2 text-muted-foreground">| {candlesLit}</span>
+              </Button>
 
-              <button
+              <Button
                 onClick={handleShare}
-                className="flex items-center gap-2 px-6 py-3 text-memorial-accent hover:text-memorial-dark transition-colors duration-300"
+                variant="ghost"
+                className="hover:text-primary transition-colors"
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="mr-2" />
                 <span>שיתוף</span>
-              </button>
+              </Button>
             </div>
-          </div>
-        </main>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
