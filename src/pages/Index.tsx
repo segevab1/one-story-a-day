@@ -1,9 +1,15 @@
 
 import { useState } from "react";
-import { Flame, Share2 } from "lucide-react";
+import { Flame, Share2, Facebook, Instagram, MessageCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Index = () => {
   const [candlesLit, setCandlesLit] = useState(0);
@@ -63,25 +69,32 @@ const Index = () => {
     });
   };
 
-  const handleShare = async () => {
+  const handleShare = async (platform: 'facebook' | 'instagram' | 'whatsapp') => {
     const shareText = `היום הנצחתי את ${currentStory.name} באתר 'סיפור אחד ביום', כנסו לקרוא ולהדליק נר לזכרו`;
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(shareText);
     
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `לזכרו של ${currentStory.name}`,
-          text: shareText,
-          url: window.location.href,
+    let shareUrl = '';
+    
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
+        break;
+      case 'instagram':
+        // Instagram doesn't have a direct share URL, we'll copy to clipboard instead
+        navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
+        toast({
+          title: "הטקסט הועתק",
+          description: "הטקסט הועתק ללוח. תוכל להדביק אותו באינסטגרם.",
         });
-      } catch (error) {
-        console.error("Error sharing:", error);
-      }
-    } else {
-      navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
-      toast({
-        title: "הטקסט הועתק",
-        description: "הטקסט הועתק ללוח. תוכל להדביק אותו בכל מקום.",
-      });
+        return;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${text}%20${url}`;
+        break;
+    }
+    
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -126,14 +139,28 @@ const Index = () => {
                 <span className="mr-2 text-muted-foreground">| {candlesLit}</span>
               </Button>
 
-              <Button
-                onClick={handleShare}
-                variant="ghost"
-                className="hover:text-primary transition-colors"
-              >
-                <Share2 className="mr-2" />
-                <span>שיתוף</span>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="hover:text-primary transition-colors">
+                    <Share2 className="mr-2" />
+                    <span>שיתוף</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => handleShare('facebook')} className="cursor-pointer">
+                    <Facebook className="ml-2" size={18} />
+                    <span>פייסבוק</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleShare('instagram')} className="cursor-pointer">
+                    <Instagram className="ml-2" size={18} />
+                    <span>אינסטגרם</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleShare('whatsapp')} className="cursor-pointer">
+                    <MessageCircle className="ml-2" size={18} />
+                    <span>וואטסאפ</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </CardContent>
         </Card>
