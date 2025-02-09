@@ -1,6 +1,5 @@
-
-import { useState } from "react";
-import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -13,9 +12,10 @@ import {
 
 const Index = () => {
   const [candlesLit, setCandlesLit] = useState(0);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const { toast } = useToast();
   
-  // Expanded stories data with more detailed narratives and contact information
   const stories = [
     {
       id: "1",
@@ -86,12 +86,32 @@ const Index = () => {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const currentStory = stories[currentStoryIndex];
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      document.body.style.setProperty('--mouse-x', `${x * 100}%`);
+      document.body.style.setProperty('--mouse-y', `${y * 100}%`);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   const handleNextStory = () => {
-    setCurrentStoryIndex((prev) => (prev + 1) % stories.length);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentStoryIndex((prev) => (prev + 1) % stories.length);
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const handlePrevStory = () => {
-    setCurrentStoryIndex((prev) => (prev - 1 + stories.length) % stories.length);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentStoryIndex((prev) => (prev - 1 + stories.length) % stories.length);
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const handleLightCandle = () => {
@@ -100,6 +120,11 @@ const Index = () => {
       title: "נר הודלק לזכרו",
       description: `הדלקת נר לזכרו של ${currentStory.name}`,
     });
+  };
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => !prev);
+    document.documentElement.classList.toggle('light');
   };
 
   const handleShare = async (platform: 'facebook' | 'instagram' | 'whatsapp') => {
@@ -114,7 +139,6 @@ const Index = () => {
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
         break;
       case 'instagram':
-        // Instagram doesn't have a direct share URL, we'll copy to clipboard instead
         navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
         toast({
           title: "הטקסט הועתק",
@@ -132,7 +156,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background font-assistant p-4">
+    <div className={`min-h-screen bg-background font-assistant p-4 interactive-bg transition-colors duration-300`}>
       <div className="container mx-auto max-w-4xl">
         <header className="text-center mb-12 animate-fade-in flex justify-between items-center">
           <Button variant="outline" onClick={() => toast({ title: "יתווסף בקרוב", description: "האפשרות להוספת סיפור תתאפשר לאחר התחברות" })}>
@@ -142,27 +166,32 @@ const Index = () => {
             <h1 className="text-4xl font-bold text-gradient-gold mb-2">סיפור אחד ביום</h1>
             <p className="text-muted-foreground">לזכר חללי צה״ל במלחמת חרבות ברזל</p>
           </div>
-          <Button variant="outline" onClick={() => toast({ title: "יתווסף בקרוב", description: "אפשרות ההרשמה תתאפשר בקרוב" })}>
-            <UserPlus className="ml-2" />
-            הרשמה
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={toggleTheme}>
+              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+            <Button variant="outline" onClick={() => toast({ title: "יתווסף בקרוב", description: "אפשרות ההרשמה תתאפשר בקרוב" })}>
+              <UserPlus className="ml-2" />
+              הרשמה
+            </Button>
+          </div>
         </header>
 
         <div className="relative">
           <Button
             variant="ghost"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hover:bg-background/20"
             onClick={handlePrevStory}
           >
             <ChevronLeft className="h-8 w-8" />
           </Button>
 
-          <Card className="memorial-card overflow-hidden animate-slide-up mx-12">
+          <Card className={`memorial-card overflow-hidden ${isTransitioning ? 'opacity-0' : 'opacity-100'} mx-12`}>
             <div className="relative aspect-video">
               <img 
                 src={currentStory.image} 
                 alt={currentStory.name}
-                className="object-cover w-full h-full brightness-75"
+                className="object-cover w-full h-full brightness-75 transition-transform duration-500 hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
             </div>
@@ -175,28 +204,28 @@ const Index = () => {
             </CardHeader>
 
             <CardContent className="space-y-8">
-              <div className="text-lg leading-relaxed whitespace-pre-line">
+              <div className="text-lg leading-relaxed whitespace-pre-line fade-slide-in">
                 {currentStory.story}
               </div>
 
-              <div className="border-t border-border pt-4">
+              <div className="border-t border-border pt-4 fade-slide-in">
                 <h3 className="text-lg font-semibold mb-2 text-gradient-gold">יצירת קשר עם המשפחה</h3>
                 <div className="space-y-2 text-muted-foreground">
-                  <p className="flex items-center">
+                  <p className="flex items-center hover:text-primary transition-colors">
                     <Mail className="ml-2" size={18} />
                     <span>{currentStory.contact.email}</span>
                   </p>
-                  <p className="flex items-center">
+                  <p className="flex items-center hover:text-primary transition-colors">
                     <Phone className="ml-2" size={18} />
                     <span>{currentStory.contact.phone}</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap justify-between items-center gap-4">
+              <div className="flex flex-wrap justify-between items-center gap-4 fade-slide-in">
                 <Button
                   onClick={handleLightCandle}
-                  className="candle-animation hover:scale-105"
+                  className="candle-animation hover:scale-105 hover:bg-primary/20"
                   variant="outline"
                 >
                   <Flame className={`mr-2 ${candlesLit > 0 ? "candle-lit" : ""}`} />
@@ -232,7 +261,7 @@ const Index = () => {
 
           <Button
             variant="ghost"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hover:bg-background/20"
             onClick={handleNextStory}
           >
             <ChevronRight className="h-8 w-8" />

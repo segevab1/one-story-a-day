@@ -27,12 +27,34 @@
     --radius: 0.75rem;
   }
 
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --primary: 47 95% 55%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --accent: 47 95% 55%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+  }
+
   * {
     @apply border-[hsl(var(--border))];
   }
 
   body {
-    @apply bg-background text-foreground antialiased min-h-screen;
+    @apply bg-background text-foreground antialiased min-h-screen transition-colors duration-300;
     direction: rtl;
   }
 
@@ -48,10 +70,15 @@
   
   .candle-lit {
     @apply animate-pulse text-primary;
+    animation: flicker 1.5s infinite alternate;
   }
 
   .memorial-card {
-    @apply bg-card/50 backdrop-blur-sm border border-white/10 shadow-lg;
+    @apply bg-card/50 backdrop-blur-sm border border-white/10 shadow-lg transition-all duration-500;
+  }
+
+  .story-transition {
+    @apply transition-opacity duration-500;
   }
 }
 
@@ -63,4 +90,45 @@
   .text-gradient-gold {
     @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
   }
+
+  .interactive-bg {
+    @apply relative overflow-hidden;
+  }
+
+  .interactive-bg::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 transition-opacity duration-300;
+    pointer-events: none;
+  }
+
+  .interactive-bg:hover::before {
+    @apply opacity-100;
+  }
 }
+
+@keyframes flicker {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-1px) scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-slide-in {
+  animation: fadeSlideIn 0.5s ease-out forwards;
+}
+
