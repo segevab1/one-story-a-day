@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { ChevronRight } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const AddStory = () => {
   const navigate = useNavigate();
@@ -21,14 +22,49 @@ const AddStory = () => {
     email: "",
     phone: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // כרגע נציג הודעה שהתכונה תהיה זמינה בקרוב
-    toast({
-      title: "התכונה תהיה זמינה בקרוב",
-      description: "אנחנו עובדים על הוספת האפשרות לשמור סיפורים חדשים",
-    });
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('stories')
+        .insert([
+          {
+            name: formData.name,
+            age: parseInt(formData.age),
+            date: formData.date,
+            unit: formData.unit,
+            story: formData.story,
+            image: formData.image,
+            contact: {
+              email: formData.email,
+              phone: formData.phone
+            },
+            candlesLit: 0
+          }
+        ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "הסיפור נשלח בהצלחה",
+        description: "תודה על השיתוף. הסיפור יעלה לאתר בקרוב.",
+      });
+
+      navigate('/');
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "שגיאה בשליחת הסיפור",
+        description: "אנא נסה שנית מאוחר יותר",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
