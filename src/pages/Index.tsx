@@ -9,12 +9,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [candlesLit, setCandlesLit] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const stories = [
     {
@@ -159,7 +161,7 @@ const Index = () => {
     <div className={`min-h-screen bg-background font-assistant p-4 interactive-bg transition-colors duration-300`}>
       <div className="container mx-auto max-w-4xl">
         <header className="text-center mb-12 animate-fade-in flex justify-between items-center">
-          <Button variant="outline" onClick={() => toast({ title: "יתווסף בקרוב", description: "האפשרות להוספת סיפור תתאפשר לאחר התחברות" })}>
+          <Button variant="outline" onClick={() => navigate("/add-story")}>
             הוספת סיפור
           </Button>
           <div>
