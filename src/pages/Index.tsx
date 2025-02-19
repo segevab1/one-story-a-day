@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -89,6 +90,7 @@ const Index = () => {
   const currentStory = stories[currentStoryIndex];
 
   useEffect(() => {
+    // טשטוש רקע דינמי בהתאם לתנועת העכבר
     const handleMouseMove = (e: MouseEvent) => {
       const x = e.clientX / window.innerWidth;
       const y = e.clientY / window.innerHeight;
@@ -167,6 +169,11 @@ const Index = () => {
           <div>
             <h1 className="text-4xl font-bold text-gradient-gold mb-2">סיפור אחד ביום</h1>
             <p className="text-muted-foreground">לזכר חללי צה״ל במלחמת חרבות ברזל</p>
+            <div className="mt-4 text-lg">
+              <span className="text-primary font-semibold ml-2">הדלקנו יחד</span>
+              <span className="text-amber-500 font-bold text-2xl">{candlesLit.toLocaleString()}</span>
+              <span className="text-primary font-semibold mr-2">נרות זיכרון</span>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={toggleTheme}>
@@ -193,7 +200,7 @@ const Index = () => {
               <img 
                 src={currentStory.image} 
                 alt={currentStory.name}
-                className="object-cover w-full h-full brightness-75 transition-transform duration-500 hover:scale-105"
+                className="object-cover w-full h-full brightness-90 transition-transform duration-500 hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
             </div>
@@ -232,7 +239,7 @@ const Index = () => {
                 >
                   <Flame className={`mr-2 ${candlesLit > 0 ? "candle-lit" : ""}`} />
                   <span>הדלקת נר</span>
-                  <span className="mr-2 text-muted-foreground">| {candlesLit}</span>
+                  <span className="mr-2 text-muted-foreground">| {currentStory.candlesLit.toLocaleString()}</span>
                 </Button>
 
                 <DropdownMenu>
