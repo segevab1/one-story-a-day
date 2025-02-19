@@ -7,28 +7,83 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { ChevronRight } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const AddStory = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     age: "",
     date: "",
     unit: "",
     story: "",
-    image: "",
+    image: null as File | null,
     email: "",
     phone: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // כרגע נציג הודעה שהתכונה תהיה זמינה בקרוב
-    toast({
-      title: "התכונה תהיה זמינה בקרוב",
-      description: "אנחנו עובדים על הוספת האפשרות לשמור סיפורים חדשים",
-    });
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("יש להתחבר כדי להוסיף סיפור");
+      }
+
+      if (!formData.image) {
+        throw new Error("נא להעלות תמונה");
+      }
+
+      // העלאת התמונה לאחסון
+      const fileExt = formData.image.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { error: uploadError, data: fileData } = await supabase.storage
+        .from('fallen-images')
+        .upload(fileName, formData.image);
+
+      if (uploadError) throw uploadError;
+
+      if (!fileData) throw new Error("שגיאה בהעלאת התמונה");
+
+      // שמירת הסיפור בדאטהבייס
+      const { error: storyError } = await supabase
+        .from('fallen_stories')
+        .insert([
+          {
+            name: formData.name,
+            age: parseInt(formData.age),
+            date: formData.date,
+            unit: formData.unit,
+            story: formData.story,
+            image_url: fileData.path,
+            contact_email: formData.email,
+            contact_phone: formData.phone,
+            created_by: user.id
+          }
+        ]);
+
+      if (storyError) throw storyError;
+
+      toast({
+        title: "הסיפור נשמר בהצלחה",
+        description: "תודה על השיתוף. הסיפור יופיע באתר בקרוב.",
+      });
+      
+      navigate("/");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "שגיאה בשמירת הסיפור",
+        description: error instanceof Error ? error.message : "אירעה שגיאה, אנא נסה שוב",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -109,9 +164,10 @@ const AddStory = () => {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      setFormData({ ...formData, image: URL.createObjectURL(file) });
+                      setFormData({ ...formData, image: file });
                     }
                   }}
+                  required
                 />
               </div>
 
@@ -141,8 +197,8 @@ const AddStory = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full">
-                שלח סיפור
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "שולח..." : "שלח סיפור"}
               </Button>
             </form>
           </CardContent>

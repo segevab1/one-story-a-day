@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 
 const Index = () => {
   const [candlesLit, setCandlesLit] = useState(0);
@@ -76,7 +76,7 @@ const Index = () => {
       unit: "חטיבת הנח״ל",
       story: `אדם היה ספורטאי מחונן ושחקן נבחרת הנוער בכדורסל. למרות שיכול היה לקבל פטור ספורטאי מצטיין, התעקש להתגייס לקרבי. שירת בגדוד 50 של הנח"ל והיה מצטיין מחלקתי.
 
-בבוקר השבת השחורה, היה בין הראשונים שהגיעו לקיבוץ בארי. נלחם בגבורה מול מחבלים שחדרו לקיבוץ, חילץ משפחה שלמה ממרחב מוגן, אך נפגע בחילופי האש האחרונים.`,
+בבוקר השבת השחורה, היה בין הראשוני�� שהגיעו לקיבוץ בארי. נלחם בגבורה מול מחבלים שחדרו לקיבוץ, חילץ משפחה שלמה ממרחב מוגן, אך נפגע בחילופי האש האחרונים.`,
       image: "public/lovable-uploads/df266238-02fe-46d3-891b-4a0f9bab6335.png",
       candlesLit: 167,
       contact: {
@@ -90,7 +90,6 @@ const Index = () => {
   const currentStory = stories[currentStoryIndex];
 
   useEffect(() => {
-    // טשטוש רקע דינמי בהתאם לתנועת העכבר
     const handleMouseMove = (e: MouseEvent) => {
       const x = e.clientX / window.innerWidth;
       const y = e.clientY / window.innerHeight;
@@ -118,12 +117,42 @@ const Index = () => {
     }, 300);
   };
 
-  const handleLightCandle = () => {
-    setCandlesLit(prev => prev + 1);
-    toast({
-      title: "נר הודלק לזכרו",
-      description: `הדלקת נר לזכרו של ${currentStory.name}`,
-    });
+  const handleLightCandle = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "נדרשת הרשמה",
+          description: "יש להתחבר כדי להדליק נר",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('candle_lights')
+        .insert([
+          {
+            story_id: currentStory.id,
+            lit_by: user.id
+          }
+        ]);
+
+      if (error) throw error;
+
+      setCandlesLit(prev => prev + 1);
+      toast({
+        title: "נר הודלק לזכרו",
+        description: `הדלקת נר לזכרו של ${currentStory.name}`,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "שגיאה בהדלקת הנר",
+        description: error instanceof Error ? error.message : "אירעה שגיאה, אנא נסה שוב",
+      });
+    }
   };
 
   const toggleTheme = () => {

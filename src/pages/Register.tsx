@@ -18,12 +18,26 @@ const Register = () => {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       })
 
-      if (error) throw error
+      if (authError) throw authError
+
+      if (authData.user) {
+        // שמירת פרטי ההרשמה בטבלת registrations
+        const { error: registrationError } = await supabase
+          .from('registrations')
+          .insert([
+            {
+              user_id: authData.user.id,
+              email: email,
+            }
+          ])
+
+        if (registrationError) throw registrationError
+      }
 
       toast({
         title: "נרשמת בהצלחה!",

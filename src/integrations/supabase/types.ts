@@ -9,6 +9,98 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      candle_lights: {
+        Row: {
+          id: string
+          lit_at: string
+          lit_by: string | null
+          story_id: string
+        }
+        Insert: {
+          id?: string
+          lit_at?: string
+          lit_by?: string | null
+          story_id: string
+        }
+        Update: {
+          id?: string
+          lit_at?: string
+          lit_by?: string | null
+          story_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candle_lights_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "fallen_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fallen_stories: {
+        Row: {
+          age: number
+          contact_email: string
+          contact_phone: string
+          created_at: string
+          created_by: string | null
+          date: string
+          id: string
+          image_url: string
+          name: string
+          story: string
+          unit: string
+        }
+        Insert: {
+          age: number
+          contact_email: string
+          contact_phone: string
+          created_at?: string
+          created_by?: string | null
+          date: string
+          id?: string
+          image_url: string
+          name: string
+          story: string
+          unit: string
+        }
+        Update: {
+          age?: number
+          contact_email?: string
+          contact_phone?: string
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          image_url?: string
+          name?: string
+          story?: string
+          unit?: string
+        }
+        Relationships: []
+      }
+      registrations: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       הרשמה: {
         Row: {
           created_at: string
