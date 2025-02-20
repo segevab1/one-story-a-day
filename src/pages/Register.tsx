@@ -21,6 +21,9 @@ const Register = () => {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`
+        }
       })
 
       if (authError) throw authError
@@ -37,14 +40,14 @@ const Register = () => {
           ])
 
         if (registrationError) throw registrationError
-      }
 
-      toast({
-        title: "נרשמת בהצלחה!",
-        description: "נשלח אליך מייל אימות. אנא אשר אותו כדי להתחיל.",
-      })
-      
-      navigate("/")
+        toast({
+          title: "נרשמת בהצלחה!",
+          description: "נשלח אליך מייל אימות. אנא אשר אותו כדי להתחיל.",
+        })
+        
+        navigate("/login")
+      }
     } catch (error) {
       toast({
         variant: "destructive",
@@ -83,7 +86,7 @@ const Register = () => {
         </div>
         <Button
           type="submit"
-          className="w-full"
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           disabled={loading}
         >
           {loading ? "מתבצעת הרשמה..." : "הרשמה"}
