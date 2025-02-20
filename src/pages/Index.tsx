@@ -11,6 +11,7 @@ const Index = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [stories, setStories] = useState<any[]>([]);
   const [isLit, setIsLit] = useState<{ [key: string]: boolean }>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -19,30 +20,48 @@ const Index = () => {
     };
     
     const loadStories = async () => {
-      const { data: storiesData, error: storiesError } = await supabase
-        .from('fallen_stories')
-        .select('*')
-        .order('created_at', { ascending: false });
+      setLoading(true);
+      try {
+        const { data: storiesData, error: storiesError } = await supabase
+          .from('fallen_stories')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (storiesError) {
-        console.error('Error loading stories:', storiesError);
-        return;
-      }
+        if (storiesError) {
+          console.error('Error loading stories:', storiesError);
+          toast({
+            variant: "destructive",
+            title: "שגיאה בטעינת הסיפורים",
+            description: "אנא נסה לרענן את הדף",
+          });
+          return;
+        }
 
-      if (storiesData) {
-        setStories(storiesData);
-        
-        // Load candle states
-        const { data: candlesData } = await supabase
-          .from('candle_lights')
-          .select('story_id');
+        if (storiesData) {
+          console.log('Loaded stories:', storiesData);
+          setStories(storiesData);
           
-        const litCandles = (candlesData || []).reduce((acc: { [key: string]: boolean }, candle) => {
-          acc[candle.story_id] = true;
-          return acc;
-        }, {});
-        
-        setIsLit(litCandles);
+          // Load candle states
+          const { data: candlesData, error: candlesError } = await supabase
+            .from('candle_lights')
+            .select('story_id');
+            
+          if (candlesError) {
+            console.error('Error loading candles:', candlesError);
+            return;
+          }
+
+          console.log('Loaded candles:', candlesData);
+          
+          const litCandles = (candlesData || []).reduce((acc: { [key: string]: boolean }, candle) => {
+            acc[candle.story_id] = true;
+            return acc;
+          }, {});
+          
+          setIsLit(litCandles);
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -56,7 +75,7 @@ const Index = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [toast]);
 
   const handleSignOut = async () => {
     try {
@@ -92,20 +111,32 @@ const Index = () => {
 
       if (isLit[storyId]) {
         // Remove candle
-        await supabase
+        const { error: deleteError } = await supabase
           .from('candle_lights')
           .delete()
           .eq('story_id', storyId)
           .eq('lit_by', user.id);
 
+        if (deleteError) throw deleteError;
         setIsLit(prev => ({ ...prev, [storyId]: false }));
+        
+        toast({
+          title: "הנר כבה",
+          description: "הנר כובה בהצלחה",
+        });
       } else {
         // Add candle
-        await supabase
+        const { error: insertError } = await supabase
           .from('candle_lights')
           .insert([{ story_id: storyId, lit_by: user.id }]);
 
+        if (insertError) throw insertError;
         setIsLit(prev => ({ ...prev, [storyId]: true }));
+        
+        toast({
+          title: "הנר הודלק",
+          description: "הנר הודלק בהצלחה",
+        });
       }
     } catch (error) {
       console.error('Error toggling candle:', error);
@@ -125,6 +156,14 @@ const Index = () => {
     
     return data.publicUrl;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary">טוען...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -154,40 +193,45 @@ const Index = () => {
       </header>
       
       <section className="container mx-auto grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {stories.map((story) => (
-          <div key={story.id} className="memorial-card p-6 fade-slide-in relative">
-            {story.image_url && (
-              <div className="mb-4 aspect-square overflow-hidden rounded-lg">
-                <img
-                  src={getImageUrl(story.image_url)}
-                  alt={`תמונה של ${story.name}`}
-                  className="w-full h-full object-cover"
+        {stories.length > 0 ? (
+          stories.map((story) => (
+            <div key={story.id} className="memorial-card p-6 fade-slide-in relative">
+              {story.image_url && (
+                <div className="mb-4 aspect-square overflow-hidden rounded-lg">
+                  <img
+                    src={getImageUrl(story.image_url)}
+                    alt={`תמונה של ${story.name}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <button
+                onClick={() => toggleCandle(story.id)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-colors"
+              >
+                <Flame 
+                  className={`w-6 h-6 transition-all ${
+                    isLit[story.id] ? 'text-primary candle-lit' : 'text-muted-foreground'
+                  }`}
                 />
-              </div>
+              </button>
+              <h2 className="text-xl font-semibold mb-2 text-gradient-gold">
+                {story.name}
+              </h2>
+              <p className="text-muted-foreground">גיל: {story.age}</p>
+              <p className="text-muted-foreground">תאריך נפילה: {story.date}</p>
+              <p className="text-muted-foreground">יחידה: {story.unit}</p>
+              <p className="mt-4">{story.story}</p>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12">
+            <p className="text-lg text-muted-foreground">אין עדיין סיפורים להצגה</p>
+            {isLoggedIn && (
+              <Button variant="outline" asChild className="mt-4">
+                <Link to="/add-story">הוסף את הסיפור הראשון</Link>
+              </Button>
             )}
-            <button
-              onClick={() => toggleCandle(story.id)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-colors"
-            >
-              <Flame 
-                className={`w-6 h-6 transition-all ${
-                  isLit[story.id] ? 'text-primary candle-lit' : 'text-muted-foreground'
-                }`}
-              />
-            </button>
-            <h2 className="text-xl font-semibold mb-2 text-gradient-gold">
-              {story.name}
-            </h2>
-            <p className="text-muted-foreground">גיל: {story.age}</p>
-            <p className="text-muted-foreground">תאריך נפילה: {story.date}</p>
-            <p className="text-muted-foreground">יחידה: {story.unit}</p>
-            <p className="mt-4">{story.story}</p>
-          </div>
-        ))}
-
-        {stories.length === 0 && (
-          <div className="col-span-full text-center text-muted-foreground">
-            אין סיפורים להצגה כרגע
           </div>
         )}
       </section>
