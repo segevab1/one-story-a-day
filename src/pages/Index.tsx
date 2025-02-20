@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 const Index = () => {
   const { toast } = useToast();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [stories, setStories] = useState<any[]>([]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -15,7 +16,24 @@ const Index = () => {
       setIsLoggedIn(!!user);
     };
     
+    const loadStories = async () => {
+      const { data, error } = await supabase
+        .from('fallen_stories')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading stories:', error);
+        return;
+      }
+
+      if (data) {
+        setStories(data);
+      }
+    };
+
     checkAuth();
+    loadStories();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session?.user);
@@ -42,6 +60,14 @@ const Index = () => {
         description: error instanceof Error ? error.message : "אירעה שגיאה, אנא נסה שוב",
       });
     }
+  };
+
+  const getImageUrl = (imagePath: string) => {
+    const { data } = supabase.storage
+      .from('fallen-images')
+      .getPublicUrl(imagePath);
+    
+    return data.publicUrl;
   };
 
   return (
@@ -72,45 +98,32 @@ const Index = () => {
       </header>
       
       <section className="container mx-auto grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        <div className="memorial-card p-6 fade-slide-in">
-          <h2 className="text-xl font-semibold mb-2 text-gradient-gold">שם: דוד כהן</h2>
-          <p className="text-muted-foreground">גיל: 22</p>
-          <p className="text-muted-foreground">תאריך נפילה: 10/10/2023</p>
-          <p className="text-muted-foreground">יחידה: סיירת מטכ"ל</p>
-          <p className="mt-4">
-            סיפור: דוד היה לוחם אמיץ ומוכשר, שתמיד הוביל את חבריו קדימה. הוא נפל בקרב героіc במהלך מבצע מיוחד בעזה.
-          </p>
-        </div>
+        {stories.map((story) => (
+          <div key={story.id} className="memorial-card p-6 fade-slide-in">
+            {story.image_url && (
+              <div className="mb-4 aspect-square overflow-hidden rounded-lg">
+                <img
+                  src={getImageUrl(story.image_url)}
+                  alt={`תמונה של ${story.name}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <h2 className="text-xl font-semibold mb-2 text-gradient-gold">
+              {story.name}
+            </h2>
+            <p className="text-muted-foreground">גיל: {story.age}</p>
+            <p className="text-muted-foreground">תאריך נפילה: {story.date}</p>
+            <p className="text-muted-foreground">יחידה: {story.unit}</p>
+            <p className="mt-4">{story.story}</p>
+          </div>
+        ))}
 
-        <div className="memorial-card p-6 fade-slide-in">
-          <h2 className="text-xl font-semibold mb-2 text-gradient-gold">שם: רחל לוי</h2>
-          <p className="text-muted-foreground">גיל: 19</p>
-          <p className="text-muted-foreground">תאריך נפילה: 15/11/2023</p>
-          <p className="text-muted-foreground">יחידה: חיל האוויר</p>
-          <p className="mt-4">
-            סיפור: רחל הייתה טייסת מצטיינת, שהגנה על שמי המדינה במסירות אין קץ. היא נהרגה בתאונת אימונים מצערת.
-          </p>
-        </div>
-
-        <div className="memorial-card p-6 fade-slide-in">
-          <h2 className="text-xl font-semibold mb-2 text-gradient-gold">שם: יוסף מזרחי</h2>
-          <p className="text-muted-foreground">גיל: 25</p>
-          <p className="text-muted-foreground">תאריך נפילה: 01/12/2023</p>
-          <p className="text-muted-foreground">יחידה: הנדסה קרבית</p>
-          <p className="mt-4">
-            סיפור: יוסף היה חבלן אמיץ לב, שנטרל מטענים רבים והציל חיי אדם. הוא נפל במהלך פיצוץ מטען ממולכד בגבול הצפון.
-          </p>
-        </div>
-
-        <div className="memorial-card p-6 fade-slide-in">
-          <h2 className="text-xl font-semibold mb-2 text-gradient-gold">שם: שרה כהן</h2>
-          <p className="text-muted-foreground">גיל: 20</p>
-          <p className="text-muted-foreground">תאריך נפילה: 20/12/2023</p>
-          <p className="text-muted-foreground">יחידה: משטרה צבאית</p>
-          <p className="mt-4">
-            סיפור: שרה הייתה שוטרת צבאית מסורה, ששמרה על הסדר והביטחון בבסיסים השונים. היא נדרסה למוות בתאונת דרכים בעת מילוי תפקידה.
-          </p>
-        </div>
+        {stories.length === 0 && (
+          <div className="col-span-full text-center text-muted-foreground">
+            אין סיפורים להצגה כרגע
+          </div>
+        )}
       </section>
     </div>
   );

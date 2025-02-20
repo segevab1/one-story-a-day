@@ -29,18 +29,6 @@ const Register = () => {
       if (authError) throw authError
 
       if (authData.user) {
-        // שמירת פרטי ההרשמה בטבלת registrations
-        const { error: registrationError } = await supabase
-          .from('registrations')
-          .insert([
-            {
-              user_id: authData.user.id,
-              email: email,
-            }
-          ])
-
-        if (registrationError) throw registrationError
-
         toast({
           title: "נרשמת בהצלחה!",
           description: "נשלח אליך מייל אימות. אנא אשר אותו כדי להתחיל.",
@@ -61,7 +49,7 @@ const Register = () => {
 
   return (
     <div className="container mx-auto max-w-md p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center">הרשמה</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center text-gradient-gold">הרשמה</h1>
       <form onSubmit={handleRegister} className="space-y-4">
         <div>
           <Input
