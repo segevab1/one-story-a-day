@@ -4,11 +4,13 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
+import { Flame } from "lucide-react";
 
 const Index = () => {
   const { toast } = useToast();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [stories, setStories] = useState<any[]>([]);
+  const [isLit, setIsLit] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -17,18 +19,30 @@ const Index = () => {
     };
     
     const loadStories = async () => {
-      const { data, error } = await supabase
+      const { data: storiesData, error: storiesError } = await supabase
         .from('fallen_stories')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error loading stories:', error);
+      if (storiesError) {
+        console.error('Error loading stories:', storiesError);
         return;
       }
 
-      if (data) {
-        setStories(data);
+      if (storiesData) {
+        setStories(storiesData);
+        
+        // Load candle states
+        const { data: candlesData } = await supabase
+          .from('candle_lights')
+          .select('story_id');
+          
+        const litCandles = (candlesData || []).reduce((acc: { [key: string]: boolean }, candle) => {
+          acc[candle.story_id] = true;
+          return acc;
+        }, {});
+        
+        setIsLit(litCandles);
       }
     };
 
@@ -62,7 +76,49 @@ const Index = () => {
     }
   };
 
+  const toggleCandle = async (storyId: string) => {
+    if (!isLoggedIn) {
+      toast({
+        title: "נדרשת התחברות",
+        description: "כדי להדליק נר, יש להתחבר תחילה",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      if (isLit[storyId]) {
+        // Remove candle
+        await supabase
+          .from('candle_lights')
+          .delete()
+          .eq('story_id', storyId)
+          .eq('lit_by', user.id);
+
+        setIsLit(prev => ({ ...prev, [storyId]: false }));
+      } else {
+        // Add candle
+        await supabase
+          .from('candle_lights')
+          .insert([{ story_id: storyId, lit_by: user.id }]);
+
+        setIsLit(prev => ({ ...prev, [storyId]: true }));
+      }
+    } catch (error) {
+      console.error('Error toggling candle:', error);
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן להדליק/לכבות את הנר כרגע",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return null;
     const { data } = supabase.storage
       .from('fallen-images')
       .getPublicUrl(imagePath);
@@ -99,7 +155,7 @@ const Index = () => {
       
       <section className="container mx-auto grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {stories.map((story) => (
-          <div key={story.id} className="memorial-card p-6 fade-slide-in">
+          <div key={story.id} className="memorial-card p-6 fade-slide-in relative">
             {story.image_url && (
               <div className="mb-4 aspect-square overflow-hidden rounded-lg">
                 <img
@@ -109,6 +165,16 @@ const Index = () => {
                 />
               </div>
             )}
+            <button
+              onClick={() => toggleCandle(story.id)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-colors"
+            >
+              <Flame 
+                className={`w-6 h-6 transition-all ${
+                  isLit[story.id] ? 'text-primary candle-lit' : 'text-muted-foreground'
+                }`}
+              />
+            </button>
             <h2 className="text-xl font-semibold mb-2 text-gradient-gold">
               {story.name}
             </h2>
