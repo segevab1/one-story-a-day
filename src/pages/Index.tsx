@@ -151,7 +151,12 @@ const Index = () => {
   const getImageUrl = (imagePath: string) => {
     if (!imagePath) return null;
     
-    // קבלת URL ציבורי לתמונה מה-Storage
+    // בדיקה אם התמונה היא מה-lovable-uploads
+    if (imagePath.startsWith('lovable-uploads/')) {
+      return '/' + imagePath;
+    }
+    
+    // אם לא, זו תמונה מסופרבייס
     const { data } = supabase.storage
       .from('fallen-images')
       .getPublicUrl(imagePath);
