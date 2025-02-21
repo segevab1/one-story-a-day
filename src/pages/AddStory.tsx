@@ -4,9 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 const AddStory = () => {
@@ -20,8 +18,8 @@ const AddStory = () => {
     unit: "",
     story: "",
     image: null as File | null,
-    email: "",
-    phone: "",
+    contact_email: "",
+    contact_phone: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,13 +40,11 @@ const AddStory = () => {
       // העלאת התמונה לאחסון
       const fileExt = formData.image.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const { error: uploadError, data: fileData } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('fallen-images')
         .upload(fileName, formData.image);
 
       if (uploadError) throw uploadError;
-
-      if (!fileData) throw new Error("שגיאה בהעלאת התמונה");
 
       // שמירת הסיפור בדאטהבייס
       const { error: storyError } = await supabase
@@ -60,10 +56,10 @@ const AddStory = () => {
             date: formData.date,
             unit: formData.unit,
             story: formData.story,
-            image_url: fileData.path,
-            contact_email: formData.email,
-            contact_phone: formData.phone,
-            created_by: user.id
+            image_url: fileName,
+            contact_email: formData.contact_email,
+            contact_phone: formData.contact_phone,
+            created_by: user.id,
           }
         ]);
 
@@ -71,7 +67,7 @@ const AddStory = () => {
 
       toast({
         title: "הסיפור נשמר בהצלחה",
-        description: "תודה על השיתוף. הסיפור יופיע באתר בקרוב.",
+        description: "תודה על השיתוף",
       });
       
       navigate("/");
@@ -87,123 +83,90 @@ const AddStory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="container mx-auto max-w-2xl">
+    <div className="container mx-auto max-w-2xl p-4">
+      <h1 className="text-2xl font-bold mb-6 text-center">הוספת סיפור</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Input
+            placeholder="שם החלל"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <Input
+            type="number"
+            placeholder="גיל"
+            value={formData.age}
+            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <Input
+            type="date"
+            value={formData.date}
+            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <Input
+            placeholder="יחידה"
+            value={formData.unit}
+            onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <Textarea
+            placeholder="סיפור"
+            value={formData.story}
+            onChange={(e) => setFormData({ ...formData, story: e.target.value })}
+            required
+            className="min-h-[200px]"
+          />
+        </div>
+        <div>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setFormData({ ...formData, image: file });
+              }
+            }}
+            required
+          />
+        </div>
+        <div>
+          <Input
+            type="email"
+            placeholder="אימייל ליצירת קשר"
+            value={formData.contact_email}
+            onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <Input
+            type="tel"
+            placeholder="טלפון ליצירת קשר"
+            value={formData.contact_phone}
+            onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
+            required
+          />
+        </div>
         <Button
-          variant="ghost"
-          className="mb-4"
-          onClick={() => navigate("/")}
+          type="submit"
+          className="w-full"
+          disabled={loading}
         >
-          <ChevronRight className="ml-2 h-4 w-4" />
-          חזרה לדף הראשי
+          {loading ? "שומר..." : "שמור סיפור"}
         </Button>
-
-        <Card className="backdrop-blur-sm bg-card/50">
-          <CardHeader>
-            <CardTitle className="text-2xl text-gradient-gold text-center">הוספת סיפור חלל</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block">שם החלל</label>
-                <Input
-                  placeholder="שם מלא"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block">גיל</label>
-                <Input
-                  type="number"
-                  placeholder="גיל"
-                  value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block">תאריך נפילה</label>
-                <Input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block">יחידה</label>
-                <Input
-                  placeholder="שם היחידה"
-                  value={formData.unit}
-                  onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block">סיפור</label>
-                <Textarea
-                  placeholder="ספר את סיפורו של החלל..."
-                  value={formData.story}
-                  onChange={(e) => setFormData({ ...formData, story: e.target.value })}
-                  className="min-h-[150px]"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block">תמונה</label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setFormData({ ...formData, image: file });
-                    }
-                  }}
-                  required
-                />
-              </div>
-
-              <div className="space-y-4 border-t border-border pt-4">
-                <h3 className="text-lg font-semibold text-gradient-gold">פרטי קשר של המשפחה</h3>
-                
-                <div>
-                  <label className="text-sm font-medium mb-1 block">דוא״ל</label>
-                  <Input
-                    type="email"
-                    placeholder="כתובת דוא״ל"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-1 block">טלפון</label>
-                  <Input
-                    type="tel"
-                    placeholder="מספר טלפון"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "שולח..." : "שלח סיפור"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+      </form>
     </div>
   );
 };
