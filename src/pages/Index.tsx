@@ -208,7 +208,7 @@ const Index = () => {
             <Button variant="outline" onClick={toggleTheme}>
               {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="outline" onClick={() => toast({ title: "יתווסף בקרוב", description: "אפשרות ההרשמה תתאפשר בקרוב" })}>
+            <Button variant="outline" onClick={() => navigate("/register")}>
               <UserPlus className="ml-2" />
               הרשמה
             </Button>

@@ -1,60 +1,46 @@
 
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
-import { supabase } from "@/lib/supabase"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 const Register = () => {
-  const [loading, setLoading] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const navigate = useNavigate()
-  const { toast } = useToast()
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-      })
+      });
 
-      if (authError) throw authError
-
-      if (authData.user) {
-        // שמירת פרטי ההרשמה בטבלת registrations
-        const { error: registrationError } = await supabase
-          .from('registrations')
-          .insert([
-            {
-              user_id: authData.user.id,
-              email: email,
-            }
-          ])
-
-        if (registrationError) throw registrationError
-      }
+      if (error) throw error;
 
       toast({
         title: "נרשמת בהצלחה!",
-        description: "נשלח אליך מייל אימות. אנא אשר אותו כדי להתחיל.",
-      })
+        description: "אנא אשר את המייל שנשלח אליך",
+      });
       
-      navigate("/")
+      navigate("/");
     } catch (error) {
       toast({
         variant: "destructive",
         title: "שגיאה בהרשמה",
         description: error instanceof Error ? error.message : "אירעה שגיאה, אנא נסה שוב",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="container mx-auto max-w-md p-4">
@@ -78,7 +64,6 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
             className="w-full"
-            minLength={6}
           />
         </div>
         <Button
@@ -86,11 +71,11 @@ const Register = () => {
           className="w-full"
           disabled={loading}
         >
-          {loading ? "מתבצעת הרשמה..." : "הרשמה"}
+          {loading ? "נרשם..." : "הרשם"}
         </Button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
