@@ -1,311 +1,242 @@
+
 import { useState, useEffect } from "react";
-import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
+import { Flame } from "lucide-react";
 
 const Index = () => {
-  const [candlesLit, setCandlesLit] = useState(0);
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
-  
-  const stories = [
-    {
-      id: "1",
-      name: "סגן דוד כהן",
-      age: 23,
-      date: "7.10.2023",
-      unit: "חטיבת גולני",
-      story: `דוד היה בן יחיד להוריו רחל ומשה מחיפה. מילדותו בלט בכישוריו המנהיגותיים ואהבתו הגדולה לארץ ישראל. בתיכון היה יושב ראש מועצת התלמידים והתנדב במד"א. התגייס לגולני מתוך בחירה ועבר קורס קצינים בהצטיינות.
-
-דוד נפל בקרב ב-7 באוקטובר, כשפיקד על כוח שנשלח לחלץ משפחות ביישובי עוטף עזה. למרות פציעתו, המשיך לפקד על חייליו ולסייע בחילוץ אזרחים עד שנפל. על גבורתו בקרב הוענק לו צל"ש לאחר מותו.`,
-      image: "public/lovable-uploads/93635e7f-4e12-4583-8792-0d3475cb5f2f.png",
-      candlesLit: 342,
-      contact: {
-        email: "cohen.family@example.com",
-        phone: "054-1234567"
-      }
-    },
-    {
-      id: "2",
-      name: "סמ״ר יובל רוזן",
-      age: 21,
-      date: "8.10.2023",
-      unit: "סיירת מטכ״ל",
-      story: `יובל גדל בתל אביב, בן בכור למשפחת רוזן. מגיל צעיר התעניין בספורט ובמוזיקה, ניגן בגיטרה והיה חבר בלהקת בית הספר. התנדב לסיירת מטכ"ל והצטיין באימונים.
-
-בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הוא חיפה על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
-      image: "public/lovable-uploads/5ba71f04-9660-4652-9a05-fe5842f3bc59.png",
-      candlesLit: 256,
-      contact: {
-        email: "rozen.memory@example.com",
-        phone: "054-7654321"
-      }
-    },
-    {
-      id: "3",
-      name: "סמ״ר שירה לוי",
-      age: 20,
-      date: "7.10.2023",
-      unit: "8200",
-      story: `שירה, תושבת ירושלים, הייתה מצטיינת בלימודי המחשב והמתמטיקה. התנדבה לשרת ביחידה 8200 והייתה חלק מצוות פיתוח מערכות הגנה סייבר.
-
-בשבת ה-7 באוקטובר, למרות שהייתה בחופשה, התעקשה לחזור לבסיס כששמעה על המתקפה. בדרכה לבסיס, נתקלה בירי טילים. עצרה לסייע למשפחה שנפגעה בצד הדרך, ונהרגה מפגיעת רקטה בעת שחבשה פצועים.`,
-      image: "public/lovable-uploads/88686795-3851-461b-a7e8-74caa8f24ff7.png",
-      candlesLit: 189,
-      contact: {
-        email: "levi.memorial@example.com",
-        phone: "054-9876543"
-      }
-    },
-    {
-      id: "4",
-      name: "רב״ט אדם ברק",
-      age: 19,
-      date: "7.10.2023",
-      unit: "חטיבת הנח״ל",
-      story: `אדם היה ספורטאי מחונן ושחקן נבחרת הנוער בכדורסל. למרות שיכול היה לקבל פטור ספורטאי מצטיין, התעקש להתגייס לקרבי. שירת בגדוד 50 של הנח"ל והיה מצטיין מחלקתי.
-
-בבוקר השבת השחורה, היה בין הראשוני�� שהגיעו לקיבוץ בארי. נלחם בגבורה מול מחבלים שחדרו לקיבוץ, חילץ משפחה שלמה ממרחב מוגן, אך נפגע בחילופי האש האחרונים.`,
-      image: "public/lovable-uploads/df266238-02fe-46d3-891b-4a0f9bab6335.png",
-      candlesLit: 167,
-      contact: {
-        email: "barak.family@example.com",
-        phone: "054-3216549"
-      }
-    }
-  ];
-
-  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
-  const currentStory = stories[currentStoryIndex];
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [stories, setStories] = useState<any[]>([]);
+  const [isLit, setIsLit] = useState<{ [key: string]: boolean }>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
-      document.body.style.setProperty('--mouse-x', `${x * 100}%`);
-      document.body.style.setProperty('--mouse-y', `${y * 100}%`);
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+    };
+    
+    const loadStories = async () => {
+      setLoading(true);
+      try {
+        const { data: storiesData, error: storiesError } = await supabase
+          .from('fallen_stories')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (storiesError) {
+          console.error('Error loading stories:', storiesError);
+          toast({
+            variant: "destructive",
+            title: "שגיאה בטעינת הסיפורים",
+            description: "אנא נסה לרענן את הדף",
+          });
+          return;
+        }
+
+        if (storiesData) {
+          console.log('Loaded stories:', storiesData);
+          setStories(storiesData);
+          
+          // Load candle states
+          const { data: candlesData, error: candlesError } = await supabase
+            .from('candle_lights')
+            .select('story_id');
+            
+          if (candlesError) {
+            console.error('Error loading candles:', candlesError);
+            return;
+          }
+
+          console.log('Loaded candles:', candlesData);
+          
+          const litCandles = (candlesData || []).reduce((acc: { [key: string]: boolean }, candle) => {
+            acc[candle.story_id] = true;
+            return acc;
+          }, {});
+          
+          setIsLit(litCandles);
+        }
+      } finally {
+        setLoading(false);
+      }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    checkAuth();
+    loadStories();
 
-  const handleNextStory = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentStoryIndex((prev) => (prev + 1) % stories.length);
-      setIsTransitioning(false);
-    }, 300);
-  };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
 
-  const handlePrevStory = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentStoryIndex((prev) => (prev - 1 + stories.length) % stories.length);
-      setIsTransitioning(false);
-    }, 300);
-  };
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [toast]);
 
-  const handleLightCandle = async () => {
+  const handleSignOut = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          variant: "destructive",
-          title: "נדרשת הרשמה",
-          description: "יש להתחבר כדי להדליק נר",
-        });
-        return;
-      }
-
-      const { error } = await supabase
-        .from('candle_lights')
-        .insert([
-          {
-            story_id: currentStory.id,
-            lit_by: user.id
-          }
-        ]);
-
+      const { error } = await supabase.auth.signOut();
       if (error) throw error;
-
-      setCandlesLit(prev => prev + 1);
+      
       toast({
-        title: "נר הודלק לזכרו",
-        description: `הדלקת נר לזכרו של ${currentStory.name}`,
+        title: "התנתקת בהצלחה",
+        description: "להתראות!",
       });
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "שגיאה בהדלקת הנר",
+        title: "שגיאה בהתנתקות",
         description: error instanceof Error ? error.message : "אירעה שגיאה, אנא נסה שוב",
       });
     }
   };
 
-  const toggleTheme = () => {
-    setIsDarkMode(prev => !prev);
-    document.documentElement.classList.toggle('light');
+  const toggleCandle = async (storyId: string) => {
+    if (!isLoggedIn) {
+      toast({
+        title: "נדרשת התחברות",
+        description: "כדי להדליק נר, יש להתחבר תחילה",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      if (isLit[storyId]) {
+        // Remove candle
+        const { error: deleteError } = await supabase
+          .from('candle_lights')
+          .delete()
+          .eq('story_id', storyId)
+          .eq('lit_by', user.id);
+
+        if (deleteError) throw deleteError;
+        setIsLit(prev => ({ ...prev, [storyId]: false }));
+        
+        toast({
+          title: "הנר כבה",
+          description: "הנר כובה בהצלחה",
+        });
+      } else {
+        // Add candle
+        const { error: insertError } = await supabase
+          .from('candle_lights')
+          .insert([{ story_id: storyId, lit_by: user.id }]);
+
+        if (insertError) throw insertError;
+        setIsLit(prev => ({ ...prev, [storyId]: true }));
+        
+        toast({
+          title: "הנר הודלק",
+          description: "הנר הודלק בהצלחה",
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling candle:', error);
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן להדליק/לכבות את הנר כרגע",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleShare = async (platform: 'facebook' | 'instagram' | 'whatsapp') => {
-    const shareText = `היום הנצחתי את ${currentStory.name} באתר 'סיפור אחד ביום', כנסו לקרוא ולהדליק נר לזכרו`;
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(shareText);
+  const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return null;
     
-    let shareUrl = '';
+    // קבלת URL ציבורי לתמונה מה-Storage
+    const { data } = supabase.storage
+      .from('fallen-images')
+      .getPublicUrl(imagePath);
     
-    switch (platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
-        break;
-      case 'instagram':
-        navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
-        toast({
-          title: "הטקסט הועתק",
-          description: "הטקסט הועתק ללוח. תוכל להדביק אותו באינסטגרם.",
-        });
-        return;
-      case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${text}%20${url}`;
-        break;
-    }
-    
-    if (shareUrl) {
-      window.open(shareUrl, '_blank', 'noopener,noreferrer');
-    }
+    return data.publicUrl;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary">טוען...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className={`min-h-screen bg-background font-assistant p-4 interactive-bg transition-colors duration-300`}>
-      <div className="container mx-auto max-w-4xl">
-        <header className="text-center mb-12 animate-fade-in flex justify-between items-center">
-          <Button variant="outline" onClick={() => navigate("/add-story")}>
-            הוספת סיפור
-          </Button>
-          <div>
-            <h1 className="text-4xl font-bold text-gradient-gold mb-2">סיפור אחד ביום</h1>
-            <p className="text-muted-foreground">לזכר חללי צה״ל במלחמת חרבות ברזל</p>
-            <div className="mt-4 text-lg">
-              <span className="text-primary font-semibold ml-2">הדלקנו יחד</span>
-              <span className="text-amber-500 font-bold text-2xl">{candlesLit.toLocaleString()}</span>
-              <span className="text-primary font-semibold mr-2">נרות זיכרון</span>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={toggleTheme}>
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/register")}>
-              <UserPlus className="ml-2" />
-              הרשמה
-            </Button>
-          </div>
-        </header>
-
-        <div className="relative">
-          <Button
-            variant="ghost"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hover:bg-background/20"
-            onClick={handlePrevStory}
-          >
-            <ChevronLeft className="h-8 w-8" />
-          </Button>
-
-          <Card className={`memorial-card overflow-hidden ${isTransitioning ? 'opacity-0' : 'opacity-100'} mx-12`}>
-            <div className="relative aspect-video">
-              <img 
-                src={currentStory.image} 
-                alt={currentStory.name}
-                className="object-cover w-full h-full brightness-90 transition-transform duration-500 hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-            </div>
-            
-            <CardHeader className="space-y-2">
-              <h2 className="text-3xl font-bold text-gradient-gold">{currentStory.name}</h2>
-              <p className="text-muted-foreground">
-                {currentStory.age} | {currentStory.unit} | {currentStory.date}
-              </p>
-            </CardHeader>
-
-            <CardContent className="space-y-8">
-              <div className="text-lg leading-relaxed whitespace-pre-line fade-slide-in">
-                {currentStory.story}
-              </div>
-
-              <div className="border-t border-border pt-4 fade-slide-in">
-                <h3 className="text-lg font-semibold mb-2 text-gradient-gold">יצירת קשר עם המשפחה</h3>
-                <div className="space-y-2 text-muted-foreground">
-                  <p className="flex items-center hover:text-primary transition-colors">
-                    <Mail className="ml-2" size={18} />
-                    <span>{currentStory.contact.email}</span>
-                  </p>
-                  <p className="flex items-center hover:text-primary transition-colors">
-                    <Phone className="ml-2" size={18} />
-                    <span>{currentStory.contact.phone}</span>
-                  </p>
+    <div className="min-h-screen bg-background p-4">
+      <header className="container mx-auto flex justify-between items-center mb-8 px-4">
+        <h1 className="text-3xl font-bold text-gradient-gold">סיפור אחד ביום</h1>
+        <nav className="space-x-4">
+          {isLoggedIn ? (
+            <>
+              <Button variant="outline" asChild className="memorial-card">
+                <Link to="/add-story">הוסף סיפור</Link>
+              </Button>
+              <Button variant="ghost" onClick={handleSignOut} className="text-primary hover:text-primary/80">
+                התנתק
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" asChild className="memorial-card">
+                <Link to="/login">התחבר</Link>
+              </Button>
+              <Button variant="default" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Link to="/register">הרשמה</Link>
+              </Button>
+            </>
+          )}
+        </nav>
+      </header>
+      
+      <section className="container mx-auto grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {stories.length > 0 ? (
+          stories.map((story) => (
+            <div key={story.id} className="memorial-card p-6 fade-slide-in relative">
+              {story.image_url && (
+                <div className="mb-4 aspect-square overflow-hidden rounded-lg">
+                  <img
+                    src={getImageUrl(story.image_url)}
+                    alt={`תמונה של ${story.name}`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              </div>
-
-              <div className="flex flex-wrap justify-between items-center gap-4 fade-slide-in">
-                <Button
-                  onClick={handleLightCandle}
-                  className="candle-animation hover:scale-105 hover:bg-primary/20"
-                  variant="outline"
-                >
-                  <Flame className={`mr-2 ${candlesLit > 0 ? "candle-lit" : ""}`} />
-                  <span>הדלקת נר</span>
-                  <span className="mr-2 text-muted-foreground">| {currentStory.candlesLit.toLocaleString()}</span>
-                </Button>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="hover:text-primary transition-colors">
-                      <Share2 className="mr-2" />
-                      <span>שיתוף</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => handleShare('facebook')} className="cursor-pointer">
-                      <Facebook className="ml-2" size={18} />
-                      <span>פייסבוק</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleShare('instagram')} className="cursor-pointer">
-                      <Instagram className="ml-2" size={18} />
-                      <span>אינסטגרם</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleShare('whatsapp')} className="cursor-pointer">
-                      <MessageCircle className="ml-2" size={18} />
-                      <span>וואטסאפ</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Button
-            variant="ghost"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hover:bg-background/20"
-            onClick={handleNextStory}
-          >
-            <ChevronRight className="h-8 w-8" />
-          </Button>
-        </div>
-      </div>
+              )}
+              <button
+                onClick={() => toggleCandle(story.id)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-colors"
+              >
+                <Flame 
+                  className={`w-6 h-6 transition-all ${
+                    isLit[story.id] ? 'text-primary candle-lit' : 'text-muted-foreground'
+                  }`}
+                />
+              </button>
+              <h2 className="text-xl font-semibold mb-2 text-gradient-gold">
+                {story.name}
+              </h2>
+              <p className="text-muted-foreground">גיל: {story.age}</p>
+              <p className="text-muted-foreground">תאריך נפילה: {story.date}</p>
+              <p className="text-muted-foreground">יחידה: {story.unit}</p>
+              <p className="mt-4">{story.story}</p>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12">
+            <p className="text-lg text-muted-foreground">אין עדיין סיפורים להצגה</p>
+            {isLoggedIn && (
+              <Button variant="outline" asChild className="mt-4">
+                <Link to="/add-story">הוסף את הסיפור הראשון</Link>
+              </Button>
+            )}
+          </div>
+        )}
+      </section>
     </div>
   );
 };
