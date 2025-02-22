@@ -90,6 +90,20 @@ const Index = () => {
   const currentStory = stories[currentStoryIndex];
 
   useEffect(() => {
+    const loadCandlesCount = async () => {
+      const { count } = await supabase
+        .from('candle_lights')
+        .select('*', { count: 'exact' });
+      
+      if (count !== null) {
+        setCandlesLit(count);
+      }
+    };
+    
+    loadCandlesCount();
+  }, []);
+
+  useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const x = e.clientX / window.innerWidth;
       const y = e.clientY / window.innerHeight;
@@ -119,9 +133,9 @@ const Index = () => {
 
   const handleLightCandle = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (authError || !user) {
         toast({
           variant: "destructive",
           title: "נדרשת הרשמה",
@@ -140,10 +154,13 @@ const Index = () => {
           }
         ]);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error lighting candle:", error);
+        throw error;
+      }
 
       setCandlesLit(prev => prev + 1);
-      currentStory.candlesLit += 1;
+      stories[currentStoryIndex].candlesLit += 1;
       
       toast({
         title: "נר הודלק לזכרו",
@@ -154,7 +171,7 @@ const Index = () => {
       toast({
         variant: "destructive",
         title: "שגיאה בהדלקת הנר",
-        description: error instanceof Error ? error.message : "אירעה שגיאה, אנא נסה שוב",
+        description: "אירעה שגיאה, אנא נסה שוב",
       });
     }
   };
@@ -212,7 +229,7 @@ const Index = () => {
             <Button variant="outline" onClick={toggleTheme}>
               {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="outline" onClick={() => toast({ title: "יתווסף בקרוב", description: "אפשרות ההרשמה תתאפשר בקרוב" })}>
+            <Button variant="outline" onClick={() => navigate("/register")}>
               <UserPlus className="ml-2" />
               הרשמה
             </Button>
