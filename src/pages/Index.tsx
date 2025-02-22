@@ -127,6 +127,7 @@ const Index = () => {
           title: "נדרשת הרשמה",
           description: "יש להתחבר כדי להדליק נר",
         });
+        navigate("/register");
         return;
       }
 
@@ -142,11 +143,14 @@ const Index = () => {
       if (error) throw error;
 
       setCandlesLit(prev => prev + 1);
+      currentStory.candlesLit += 1;
+      
       toast({
         title: "נר הודלק לזכרו",
         description: `הדלקת נר לזכרו של ${currentStory.name}`,
       });
     } catch (error) {
+      console.error("Error lighting candle:", error);
       toast({
         variant: "destructive",
         title: "שגיאה בהדלקת הנר",
