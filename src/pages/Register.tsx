@@ -21,6 +21,9 @@ const Register = () => {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: window.location.origin
+        }
       });
 
       if (authError) throw authError;
@@ -37,15 +40,16 @@ const Register = () => {
           ]);
 
         if (registrationError) throw registrationError;
-      }
 
-      toast({
-        title: "נרשמת בהצלחה!",
-        description: "נשלח אליך מייל אימות. אנא אשר אותו כדי להתחיל.",
-      });
-      
-      navigate("/");
+        toast({
+          title: "נרשמת בהצלחה!",
+          description: "נשלח אליך מייל אימות. אנא אשר אותו כדי להתחיל.",
+        });
+        
+        navigate("/");
+      }
     } catch (error) {
+      console.error("Registration error:", error);
       toast({
         variant: "destructive",
         title: "שגיאה בהרשמה",
@@ -68,6 +72,7 @@ const Register = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full"
+            dir="rtl"
           />
         </div>
         <div>
@@ -79,6 +84,7 @@ const Register = () => {
             required
             className="w-full"
             minLength={6}
+            dir="rtl"
           />
         </div>
         <Button
