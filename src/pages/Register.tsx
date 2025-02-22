@@ -3,13 +3,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 
 const Register = () => {
-  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -18,38 +19,22 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: window.location.origin
-        }
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      if (authData.user) {
-        // שמירת פרטי ההרשמה בטבלת registrations
-        const { error: registrationError } = await supabase
-          .from('registrations')
-          .insert([
-            {
-              user_id: authData.user.id,
-              email: email,
-            }
-          ]);
-
-        if (registrationError) throw registrationError;
-
+      if (data.user) {
         toast({
-          title: "נרשמת בהצלחה!",
-          description: "נשלח אליך מייל אימות. אנא אשר אותו כדי להתחיל.",
+          title: "נרשמת בהצלחה",
+          description: "נשלח אליך מייל אימות. אנא בדוק את תיבת הדואר שלך.",
         });
-        
         navigate("/");
       }
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Error during registration:", error);
       toast({
         variant: "destructive",
         title: "שגיאה בהרשמה",
@@ -61,40 +46,58 @@ const Register = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-md p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center">הרשמה</h1>
-      <form onSubmit={handleRegister} className="space-y-4">
-        <div>
-          <Input
-            type="email"
-            placeholder="אימייל"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full"
-            dir="rtl"
-          />
-        </div>
-        <div>
-          <Input
-            type="password"
-            placeholder="סיסמה"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full"
-            minLength={6}
-            dir="rtl"
-          />
-        </div>
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loading}
-        >
-          {loading ? "מתבצעת הרשמה..." : "הרשמה"}
-        </Button>
-      </form>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">הרשמה לאתר</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">
+                אימייל
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="הכנס את כתובת האימייל שלך"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                סיסמה
+              </label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="הכנס סיסמה"
+                required
+                minLength={6}
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? "מתבצעת הרשמה..." : "הרשמה"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate("/")}
+            >
+              חזרה לדף הבית
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };
