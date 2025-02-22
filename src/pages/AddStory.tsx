@@ -39,9 +39,9 @@ const AddStory = () => {
 
       // העלאת התמונה לאחסון
       const fileExt = formData.image.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from('fallen-images')
+      const fileName = `lovable-uploads/${Math.random()}.${fileExt}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('public')
         .upload(fileName, formData.image);
 
       if (uploadError) throw uploadError;

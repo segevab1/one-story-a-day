@@ -25,12 +25,13 @@ const Login = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "התחברת בהצלחה!",
-        description: "ברוך הבא!",
-      });
-      
-      navigate("/");
+      if (data.user) {
+        toast({
+          title: "התחברת בהצלחה!",
+          description: "ברוך הבא",
+        });
+        navigate("/");
+      }
     } catch (error) {
       toast({
         variant: "destructive",
@@ -53,7 +54,6 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full"
           />
         </div>
         <div>
@@ -63,7 +63,6 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full"
           />
         </div>
         <Button
