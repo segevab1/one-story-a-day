@@ -16,9 +16,10 @@ const Index = () => {
   const [candlesLit, setCandlesLit] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [litCandles, setLitCandles] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const navigate = useNavigate();
-  
+
   const stories = [
     {
       id: "1",
@@ -44,7 +45,7 @@ const Index = () => {
       unit: "סיירת מטכ״ל",
       story: `יובל גדל בתל אביב, בן בכור למשפחת רוזן. מגיל צעיר התעניין בספורט ובמוזיקה, ניגן בגיטרה והיה חבר בלהקת בית הספר. התנדב לסיירת מטכ"ל והצטיין באימונים.
 
-בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הוא חיפה על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
+בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הואicha על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
       image: "public/lovable-uploads/e025cc5f-ce55-49be-8f81-35e5533db778.png",
       candlesLit: 256,
       contact: {
@@ -91,12 +92,29 @@ const Index = () => {
 
   useEffect(() => {
     const loadCandlesCount = async () => {
-      const { count } = await supabase
-        .from('candle_lights')
-        .select('*', { count: 'exact' });
-      
-      if (count !== null) {
-        setCandlesLit(count);
+      try {
+        const { count } = await supabase
+          .from('candle_lights')
+          .select('*', { count: 'exact' });
+        
+        if (count !== null) {
+          setCandlesLit(count);
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: userCandles } = await supabase
+            .from('candle_lights')
+            .select('story_id')
+            .eq('lit_by', user.id);
+
+          if (userCandles) {
+            const litStoryIds = new Set(userCandles.map(candle => candle.story_id));
+            setLitCandles(litStoryIds);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading candles:", error);
       }
     };
     
@@ -145,6 +163,15 @@ const Index = () => {
         return;
       }
 
+      if (litCandles.has(currentStory.id)) {
+        toast({
+          variant: "destructive",
+          title: "נר כבר הודלק",
+          description: "כבר הדלקת נר לזכרו של " + currentStory.name,
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('candle_lights')
         .insert([
@@ -154,13 +181,11 @@ const Index = () => {
           }
         ]);
 
-      if (error) {
-        console.error("Error lighting candle:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       setCandlesLit(prev => prev + 1);
       stories[currentStoryIndex].candlesLit += 1;
+      setLitCandles(prev => new Set([...prev, currentStory.id]));
       
       toast({
         title: "נר הודלק לזכרו",
@@ -268,7 +293,7 @@ const Index = () => {
               </div>
 
               <div className="border-t border-border pt-4 fade-slide-in">
-                <h3 className="text-lg font-semibold mb-2 text-gradient-gold">יצירת קשר עם המשפחה</h3>
+                <h3 className="text-lg font-semibold text-gradient-gold">יצירת קשר עם המשפחה</h3>
                 <div className="space-y-2 text-muted-foreground">
                   <p className="flex items-center hover:text-primary transition-colors">
                     <Mail className="ml-2" size={18} />
@@ -284,10 +309,19 @@ const Index = () => {
               <div className="flex flex-wrap justify-between items-center gap-4 fade-slide-in">
                 <Button
                   onClick={handleLightCandle}
-                  className="candle-animation hover:scale-105 hover:bg-primary/20"
-                  variant="outline"
+                  className={`transition-all duration-300 hover:scale-105 ${
+                    litCandles.has(currentStory.id) 
+                      ? 'bg-gradient-to-r from-orange-500 via-yellow-500 to-orange-500 text-white hover:from-orange-600 hover:via-yellow-600 hover:to-orange-600'
+                      : 'bg-secondary hover:bg-secondary/80'
+                  }`}
                 >
-                  <Flame className={`mr-2 ${candlesLit > 0 ? "candle-lit" : ""}`} />
+                  <Flame 
+                    className={`mr-2 transition-all duration-300 ${
+                      litCandles.has(currentStory.id) 
+                        ? 'text-white animate-pulse'
+                        : ''
+                    }`}
+                  />
                   <span>הדלקת נר</span>
                   <span className="mr-2 text-muted-foreground">| {currentStory.candlesLit.toLocaleString()}</span>
                 </Button>
