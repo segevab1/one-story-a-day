@@ -163,7 +163,18 @@ const Index = () => {
         return;
       }
 
-      if (litCandles.has(currentStory.id)) {
+      const { data: existingCandle, error: checkError } = await supabase
+        .from('candle_lights')
+        .select('id')
+        .eq('story_id', currentStory.id)
+        .eq('lit_by', user.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      if (existingCandle) {
         toast({
           variant: "destructive",
           title: "נר כבר הודלק",
@@ -172,23 +183,25 @@ const Index = () => {
         return;
       }
 
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('candle_lights')
-        .insert([
-          {
-            story_id: currentStory.id,
-            lit_by: user.id
-          }
-        ]);
+        .insert({
+          story_id: currentStory.id,
+          lit_by: user.id
+        });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
       setCandlesLit(prev => prev + 1);
-      stories[currentStoryIndex].candlesLit += 1;
       setLitCandles(prev => new Set([...prev, currentStory.id]));
       
+      stories[currentStoryIndex] = {
+        ...stories[currentStoryIndex],
+        candlesLit: stories[currentStoryIndex].candlesLit + 1
+      };
+
       toast({
-        title: "נר הודלק לזכרו",
+        title: "נר הודלק בהצלחה",
         description: `הדלקת נר לזכרו של ${currentStory.name}`,
       });
     } catch (error) {
@@ -196,7 +209,7 @@ const Index = () => {
       toast({
         variant: "destructive",
         title: "שגיאה בהדלקת הנר",
-        description: "אירעה שגיאה, אנא נסה שוב",
+        description: error instanceof Error ? error.message : "אירעה שגיאה, אנא נסה שוב",
       });
     }
   };
