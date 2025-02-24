@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon, LogIn } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -14,10 +15,10 @@ import { supabase } from "@/lib/supabase";
 
 // ייבוא התמונות באופן סטטי
 const IMAGES = {
-  soldier1: '/lovable-uploads/b8a86c99-a1a3-4cbe-bebc-171b42ae57aa.png',
-  soldier2: '/lovable-uploads/3aa936d6-4a36-4345-acd7-c3134f6747a0.png',
-  soldier3: '/lovable-uploads/e47872e3-834d-4c49-83f1-c0e17a11a1d5.png',
-  soldier4: '/lovable-uploads/a6645878-6950-4d93-bcda-1839a1d052a0.png'
+  soldier1: 'b8a86c99-a1a3-4cbe-bebc-171b42ae57aa.png',
+  soldier2: '3aa936d6-4a36-4345-acd7-c3134f6747a0.png',
+  soldier3: 'e47872e3-834d-4c49-83f1-c0e17a11a1d5.png',
+  soldier4: 'a6645878-6950-4d93-bcda-1839a1d052a0.png'
 };
 
 const Index = () => {
@@ -49,7 +50,7 @@ const Index = () => {
       story: `דוד היה בן יחיד להוריו רחל ומשה מחיפה. מילדותו בלט בכישוריו המנהיגותיים ואהבתו הגדולה לארץ ישראל. בתיכון היה יושב ראש מועצת התלמידים והתנדב במד"א. התגייס לגולני מתוך בחירה ועבר קורס קצינים בהצטיינות.
 
 דוד נפל בקרב ב-7 באוקטובר, כשפיקד על כוח שנשלח לחלץ משפחות ביישובי עוטף עזה. למרות פציעתו, המשיך לפקד על חייליו ולסייע בחילוץ אזרחים עד שנפל. על גבורתו בקרב הוענק לו צל"ש לאחר מותו.`,
-      image: IMAGES.soldier1,
+      image: `/lovable-uploads/${IMAGES.soldier1}`,
       candlesLit: 342,
       contact: {
         email: "cohen.family@example.com",
@@ -65,7 +66,7 @@ const Index = () => {
       story: `יובל גדל בתל אביב, בן בכור למשפחת רוזן. מגיל צעיר התעניין בספורט ובמוזיקה, ניגן בגיטרה והיה חבר בלהקת בית הספר. התנדב לסיירת מטכ"ל והצטיין באימונים.
 
 בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הוא חיפה על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
-      image: IMAGES.soldier2,
+      image: `/lovable-uploads/${IMAGES.soldier2}`,
       candlesLit: 256,
       contact: {
         email: "rozen.memory@example.com",
@@ -81,7 +82,7 @@ const Index = () => {
       story: `שירה, תושבת ירושלים, הייתה מצטיינת בלימודי המחשב והמתמטיקה. התנדבה לשרת ביחידה 8200 והייתה חלק מצוות פיתוח מערכות הגנה סייבר.
 
 בשבת ה-7 באוקטובר, למרות שהייתה בחופשה, התעקשה לחזור לבסיס כששמעה על המתקפה. בדרכה לבסיס, נתקלה בירי טילים. עצרה לסייע למשפחה שנפגעה בצד הדרך, ונהרגה מפגיעת רקטה בעת שחבשה פצועים.`,
-      image: IMAGES.soldier3,
+      image: `/lovable-uploads/${IMAGES.soldier3}`,
       candlesLit: 189,
       contact: {
         email: "levi.memorial@example.com",
@@ -97,7 +98,7 @@ const Index = () => {
       story: `אדם היה ספורטאי מחונן ושחקן נבחרת הנוער בכדורסל. למרות שיכול היה לקבל פטור ספורטאי מצטיין, התעקש להתגייס לקרבי. שירת בגדוד 50 של הנח"ל והיה מצטיין מחלקתי.
 
 בבוקר השבת השחורה, היה בין הראשונים שהגיעו לקיבוץ בארי. נלחם בגבורה מול מחבלים שחדרו לקיבוץ, חילץ משפחה שלמה ממרחב מוגן, אך נפגע בחילופי האש האחרונים.`,
-      image: IMAGES.soldier4,
+      image: `/lovable-uploads/${IMAGES.soldier4}`,
       candlesLit: 167,
       contact: {
         email: "barak.family@example.com",
@@ -228,7 +229,8 @@ const Index = () => {
                   loading="eager"
                   onError={(e) => {
                     console.error('Image failed to load:', currentStory.image);
-                    e.currentTarget.src = '/placeholder.svg';
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.svg';
                   }}
                 />
               </div>
