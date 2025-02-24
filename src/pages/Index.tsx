@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon, LogIn } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,10 +14,10 @@ import { supabase } from "@/lib/supabase";
 
 // ייבוא התמונות באופן סטטי
 const IMAGES = {
-  soldier1: new URL('/images/soldier1.webp', import.meta.url).href,
-  soldier2: new URL('/images/soldier2.webp', import.meta.url).href,
-  soldier3: new URL('/images/soldier3.webp', import.meta.url).href,
-  soldier4: new URL('/images/soldier4.webp', import.meta.url).href,
+  soldier1: new URL('/lovable-uploads/b8a86c99-a1a3-4cbe-bebc-171b42ae57aa.png', import.meta.url).href,
+  soldier2: new URL('/lovable-uploads/3aa936d6-4a36-4345-acd7-c3134f6747a0.png', import.meta.url).href,
+  soldier3: new URL('/lovable-uploads/e47872e3-834d-4c49-83f1-c0e17a11a1d5.png', import.meta.url).href,
+  soldier4: new URL('/lovable-uploads/a6645878-6950-4d93-bcda-1839a1d052a0.png', import.meta.url).href,
 };
 
 const Index = () => {
