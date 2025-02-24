@@ -14,10 +14,10 @@ import { supabase } from "@/lib/supabase";
 
 // ייבוא התמונות באופן סטטי
 const IMAGES = {
-  soldier1: new URL('/lovable-uploads/b8a86c99-a1a3-4cbe-bebc-171b42ae57aa.png', import.meta.url).href,
-  soldier2: new URL('/lovable-uploads/3aa936d6-4a36-4345-acd7-c3134f6747a0.png', import.meta.url).href,
-  soldier3: new URL('/lovable-uploads/e47872e3-834d-4c49-83f1-c0e17a11a1d5.png', import.meta.url).href,
-  soldier4: new URL('/lovable-uploads/a6645878-6950-4d93-bcda-1839a1d052a0.png', import.meta.url).href,
+  soldier1: '/lovable-uploads/b8a86c99-a1a3-4cbe-bebc-171b42ae57aa.png',
+  soldier2: '/lovable-uploads/3aa936d6-4a36-4345-acd7-c3134f6747a0.png',
+  soldier3: '/lovable-uploads/e47872e3-834d-4c49-83f1-c0e17a11a1d5.png',
+  soldier4: '/lovable-uploads/a6645878-6950-4d93-bcda-1839a1d052a0.png'
 };
 
 const Index = () => {
@@ -220,12 +220,16 @@ const Index = () => {
 
           <Card className="fade-slide-in">
             <CardHeader className="text-center space-y-4">
-              <div className="relative w-48 h-48 mx-auto rounded-full overflow-hidden">
+              <div className="relative w-48 h-48 mx-auto rounded-full overflow-hidden border-2 border-primary">
                 <img
                   src={currentStory.image}
                   alt={currentStory.name}
                   className="w-full h-full object-cover"
                   loading="eager"
+                  onError={(e) => {
+                    console.error('Image failed to load:', currentStory.image);
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
                 />
               </div>
               <div>
