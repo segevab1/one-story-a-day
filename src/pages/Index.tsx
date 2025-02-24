@@ -217,6 +217,7 @@ const Index = () => {
                   src={currentStory.image}
                   alt={currentStory.name}
                   className="w-full h-full object-cover"
+                  loading="eager"
                 />
               </div>
               <div>
@@ -231,7 +232,7 @@ const Index = () => {
             </CardHeader>
 
             <CardContent className="text-center">
-              <p className="text-md text-gray-700 mb-6">{currentStory.story}</p>
+              <p className="text-md text-white mb-6 leading-relaxed">{currentStory.story}</p>
 
               <div className="flex justify-center space-x-4">
                 <Button onClick={handleLightCandle}>
