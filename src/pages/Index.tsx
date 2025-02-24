@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon, LogIn } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
