@@ -12,12 +12,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
-// ייבוא התמונות באופן סטטי
 const IMAGES = {
-  soldier1: 'b8a86c99-a1a3-4cbe-bebc-171b42ae57aa.png',
-  soldier2: '3aa936d6-4a36-4345-acd7-c3134f6747a0.png',
-  soldier3: 'e47872e3-834d-4c49-83f1-c0e17a11a1d5.png',
-  soldier4: 'a6645878-6950-4d93-bcda-1839a1d052a0.png'
+  soldier1: 'https://files.oaiusercontent.com/file-KbGL3j8QqL1sK4cT42VqZ3?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dd2ec7ad1-2295-4ecc-a51c-6292e3126811.webp&sig=GYGny1cRDmACw2%2BHs667BKEjOEcWgbKjCY474sTbCOI%3D',
+  soldier2: 'https://files.oaiusercontent.com/file-8QqsBvTuBizMsYPF9Upf5u?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dbebc86de-1784-4930-825b-29b9bf465cd6.webp&sig=L7zU80x2%2B4WFB/5d0021roa41tkZX0zq3NTdxDbgKD0%3D',
+  soldier3: 'https://files.oaiusercontent.com/file-Qt1C8Qj8ts8jmMhGbdGiXn?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Daa42ddd4-b13e-4ba2-b268-9e09b93a97a3.webp&sig=KfGTX/sOGD0nuNkg7pFiutmS0ELrAf6rtBR746ZcQgE%3D',
+  soldier4: 'https://files.oaiusercontent.com/file-NsFD5edjYKVQryBjsmso21?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dcfc04828-7d8a-4dca-9c22-007549d3e81e.webp&sig=UOvU9%2BIrR1AMwUiXiW6fjRv3jJ8weHILOnwCqSzUs6Y%3D'
 };
 
 const Index = () => {
@@ -37,7 +36,23 @@ const Index = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsLoggedIn(!!session);
     });
-  }, []);
+
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsTransitioning(true);
+    setIsDarkMode((prev) => !prev);
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 300);
+  };
 
   const stories = [
     {
@@ -49,7 +64,7 @@ const Index = () => {
       story: `דוד היה בן יחיד להוריו רחל ומשה מחיפה. מילדותו בלט בכישוריו המנהיגותיים ואהבתו הגדולה לארץ ישראל. בתיכון היה יושב ראש מועצת התלמידים והתנדב במד"א. התגייס לגולני מתוך בחירה ועבר קורס קצינים בהצטיינות.
 
 דוד נפל בקרב ב-7 באוקטובר, כשפיקד על כוח שנשלח לחלץ משפחות ביישובי עוטף עזה. למרות פציעתו, המשיך לפקד על חייליו ולסייע בחילוץ אזרחים עד שנפל. על גבורתו בקרב הוענק לו צל"ש לאחר מותו.`,
-      image: `/lovable-uploads/${IMAGES.soldier1}`,
+      image: IMAGES.soldier1,
       candlesLit: 342,
       contact: {
         email: "cohen.family@example.com",
@@ -64,8 +79,8 @@ const Index = () => {
       unit: "סיירת מטכ״ל",
       story: `יובל גדל בתל אביב, בן בכור למשפחת רוזן. מגיל צעיר התעניין בספורט ובמוזיקה, ניגן בגיטרה והיה חבר בלהקת בית הספר. התנדב לסיירת מטכ"ל והצטיין באימונים.
 
-בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הוא חיפה על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
-      image: `/lovable-uploads/${IMAGES.soldier2}`,
+בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הואicha על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
+      image: IMAGES.soldier2,
       candlesLit: 256,
       contact: {
         email: "rozen.memory@example.com",
@@ -80,8 +95,8 @@ const Index = () => {
       unit: "8200",
       story: `שירה, תושבת ירושלים, הייתה מצטיינת בלימודי המחשב והמתמטיקה. התנדבה לשרת ביחידה 8200 והייתה חלק מצוות פיתוח מערכות הגנה סייבר.
 
-בשבת ה-7 באוקטובר, למרות שהייתה בחופשה, התעקשה לחזור לבסיס כששמעה על המתקפה. בדרכה לבסיס, נתקלה בירי טילים. עצרה לסייע למשפחה שנפגעה בצד הדרך, ונהרגה מפגיעת רקטה בעת שחבשה פצועים.`,
-      image: `/lovable-uploads/${IMAGES.soldier3}`,
+בשבת ה-7 באוק��ובר, למרות שהייתה בחופשה, התעקשה לחזור לבסיס כששמעה על המתקפה. בדרכה לבסיס, נתקלה בירי טילים. עצרה לסייע למשפחה שנפגעה בצד הדרך, ונהרגה מפגיעת רקטה בעת שחבשה פצועים.`,
+      image: IMAGES.soldier3,
       candlesLit: 189,
       contact: {
         email: "levi.memorial@example.com",
@@ -97,7 +112,7 @@ const Index = () => {
       story: `אדם היה ספורטאי מחונן ושחקן נבחרת הנוער בכדורסל. למרות שיכול היה לקבל פטור ספורטאי מצטיין, התעקש להתגייס לקרבי. שירת בגדוד 50 של הנח"ל והיה מצטיין מחלקתי.
 
 בבוקר השבת השחורה, היה בין הראשונים שהגיעו לקיבוץ בארי. נלחם בגבורה מול מחבלים שחדרו לקיבוץ, חילץ משפחה שלמה ממרחב מוגן, אך נפגע בחילופי האש האחרונים.`,
-      image: `/lovable-uploads/${IMAGES.soldier4}`,
+      image: IMAGES.soldier4,
       candlesLit: 167,
       contact: {
         email: "barak.family@example.com",
@@ -126,14 +141,6 @@ const Index = () => {
     });
   };
 
-  const toggleTheme = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setIsDarkMode((prevMode) => !prevMode);
-      setIsTransitioning(false);
-    }, 300);
-  };
-
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -160,7 +167,7 @@ const Index = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-background font-assistant p-4 interactive-bg transition-colors duration-300`}>
+    <div className={`min-h-screen bg-background font-assistant p-4 interactive-bg transition-colors duration-300 ${isDarkMode ? 'dark' : 'light'}`}>
       <div className="container mx-auto max-w-4xl">
         <header className="text-center mb-12 animate-fade-in">
           <div className="flex justify-end gap-2 mb-4">
@@ -183,7 +190,11 @@ const Index = () => {
                 התנתקות
               </Button>
             )}
-            <Button variant="outline" onClick={toggleTheme}>
+            <Button 
+              variant="outline" 
+              onClick={toggleTheme}
+              className="transition-colors duration-300"
+            >
               {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
           </div>
