@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon, LogIn } from "lucide-react";
+import { Flame, Share2, Facebook, Instagram, MessageCircle, UserPlus, ChevronLeft, ChevronRight, Mail, Phone, Sun, Moon, LogIn, PlusCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -12,11 +13,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
+// עדכון הנתיבים לתמונות לשימוש בתמונות מקומיות
 const IMAGES = {
-  soldier1: 'https://files.oaiusercontent.com/file-8QqsBvTuBizMsYPF9Upf5u?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dbebc86de-1784-4930-825b-29b9bf465cd6.webp&sig=L7zU80x2%2B4WFB/5d0021roa41tkZX0zq3NTdxDbgKD0%3D',
-  soldier2: 'https://files.oaiusercontent.com/file-Qt1C8Qj8ts8jmMhGbdGiXn?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Daa42ddd4-b13e-4ba2-b268-9e09b93a97a3.webp&sig=KfGTX/sOGD0nuNkg7pFiutmS0ELrAf6rtBR746ZcQgE%3D',
-  shira: 'https://files.oaiusercontent.com/file-KbGL3j8QqL1sK4cT42VqZ3?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dd2ec7ad1-2295-4ecc-a51c-6292e3126811.webp&sig=GYGny1cRDmACw2%2BHs667BKEjOEcWgbKjCY474sTbCOI%3D',
-  soldier4: 'https://files.oaiusercontent.com/file-NsFD5edjYKVQryBjsmso21?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dcfc04828-7d8a-4dca-9c22-007549d3e81e.webp&sig=UOvU9%2BIrR1AMwUiXiW6fjRv3jJ8weHILOnwCqSzUs6Y%3D'
+  soldier1: '/lovable-uploads/soldier1.webp',
+  soldier2: '/lovable-uploads/soldier2.webp',
+  shira: '/lovable-uploads/soldier3.webp',
+  soldier4: '/lovable-uploads/soldier4.webp'
 };
 
 const Index = () => {
@@ -171,6 +173,12 @@ const Index = () => {
       <div className="container mx-auto max-w-4xl">
         <header className="text-center mb-12 animate-fade-in">
           <div className="flex justify-end gap-2 mb-4">
+            {isLoggedIn && (
+              <Button variant="outline" onClick={() => navigate("/add-story")} className="flex items-center gap-2">
+                <PlusCircle className="h-4 w-4" />
+                הוספת סיפור
+              </Button>
+            )}
             <Button variant="outline" onClick={() => navigate("/register")}>
               <UserPlus className="ml-2 h-4 w-4" />
               הרשמה
@@ -198,7 +206,7 @@ const Index = () => {
               {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
           </div>
-          
+
           <div>
             <h1 className="text-4xl font-bold text-gradient-gold mb-2">סיפור אחד ביום</h1>
             <p className="text-muted-foreground">לזכר חללי צה״ל במלחמת חרבות ברזל</p>
