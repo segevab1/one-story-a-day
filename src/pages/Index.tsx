@@ -13,9 +13,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
 const IMAGES = {
-  soldier1: 'https://files.oaiusercontent.com/file-KbGL3j8QqL1sK4cT42VqZ3?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dd2ec7ad1-2295-4ecc-a51c-6292e3126811.webp&sig=GYGny1cRDmACw2%2BHs667BKEjOEcWgbKjCY474sTbCOI%3D',
-  soldier2: 'https://files.oaiusercontent.com/file-8QqsBvTuBizMsYPF9Upf5u?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dbebc86de-1784-4930-825b-29b9bf465cd6.webp&sig=L7zU80x2%2B4WFB/5d0021roa41tkZX0zq3NTdxDbgKD0%3D',
-  soldier3: 'https://files.oaiusercontent.com/file-Qt1C8Qj8ts8jmMhGbdGiXn?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Daa42ddd4-b13e-4ba2-b268-9e09b93a97a3.webp&sig=KfGTX/sOGD0nuNkg7pFiutmS0ELrAf6rtBR746ZcQgE%3D',
+  soldier1: 'https://files.oaiusercontent.com/file-8QqsBvTuBizMsYPF9Upf5u?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dbebc86de-1784-4930-825b-29b9bf465cd6.webp&sig=L7zU80x2%2B4WFB/5d0021roa41tkZX0zq3NTdxDbgKD0%3D',
+  soldier2: 'https://files.oaiusercontent.com/file-Qt1C8Qj8ts8jmMhGbdGiXn?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Daa42ddd4-b13e-4ba2-b268-9e09b93a97a3.webp&sig=KfGTX/sOGD0nuNkg7pFiutmS0ELrAf6rtBR746ZcQgE%3D',
+  shira: 'https://files.oaiusercontent.com/file-KbGL3j8QqL1sK4cT42VqZ3?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dd2ec7ad1-2295-4ecc-a51c-6292e3126811.webp&sig=GYGny1cRDmACw2%2BHs667BKEjOEcWgbKjCY474sTbCOI%3D',
   soldier4: 'https://files.oaiusercontent.com/file-NsFD5edjYKVQryBjsmso21?se=2025-02-26T10%3A18%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dcfc04828-7d8a-4dca-9c22-007549d3e81e.webp&sig=UOvU9%2BIrR1AMwUiXiW6fjRv3jJ8weHILOnwCqSzUs6Y%3D'
 };
 
@@ -96,7 +96,7 @@ const Index = () => {
       story: `שירה, תושבת ירושלים, הייתה מצטיינת בלימודי המחשב והמתמטיקה. התנדבה לשרת ביחידה 8200 והייתה חלק מצוות פיתוח מערכות הגנה סייבר.
 
 בשבת ה-7 באוקטובר, למרות שהייתה בחופשה, התעקשה לחזור לבסיס כששמעה על המתקפה. בדרכה לבסיס, נתקלה בירי טילים. עצרה לסייע למשפחה שנפגעה בצד הדרך, ונהרגה מפגיעת רקטה בעת שחבשה פצועים.`,
-      image: IMAGES.soldier3,
+      image: IMAGES.shira,
       candlesLit: 189,
       contact: {
         email: "levi.memorial@example.com",
