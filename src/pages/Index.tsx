@@ -17,7 +17,7 @@ import { supabase } from "@/lib/supabase";
 const IMAGES = {
   soldier1: '/lovable-uploads/soldier1.webp',
   soldier2: '/lovable-uploads/soldier2.webp',
-  shira: '/lovable-uploads/soldier3.webp',
+  soldier3: '/lovable-uploads/soldier3.webp',
   soldier4: '/lovable-uploads/soldier4.webp'
 };
 
@@ -82,7 +82,7 @@ const Index = () => {
       story: `יובל גדל בתל אביב, בן בכור למשפחת רוזן. מגיל צעיר התעניין בספורט ובמוזיקה, ניגן בגיטרה והיה חבר בלהקת בית הספר. התנדב לסיירת מטכ"ל והצטיין באימונים.
 
 בבוקר ה-8 באוקטובר, יובל וצוותו הוזנקו למושב נתיב העשרה בעקבות דיווח על חדירת מחבלים. במהלך הקרב להגנת המושב, זיהה יובל מחבלים שהתקרבו לבית משפחה. הוא חיפה על חבריו ואפשר פינוי בטוח של המשפחה, אך נפגע מירי צלפים.`,
-      image: IMAGES.soldier1, // שינוי התמונה
+      image: '/lovable-uploads/aa42ddd4-b13e-4ba2-b268-9e09b93a97a3.webp', // עדכון התמונה של יובל רוזן לתמונה הנכונה
       candlesLit: 256,
       contact: {
         email: "rozen.memory@example.com",
